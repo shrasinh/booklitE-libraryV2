@@ -1,7 +1,7 @@
 # BookLit
 ![image](images/home-page.png)
 
-This is a library management system/e-library built on flask framework.
+This is a library management system/e-library built on flask framework, with more focus on the backend.
 
 ## To run the application
 
