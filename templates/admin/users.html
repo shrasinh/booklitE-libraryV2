@@ -1,0 +1,40 @@
+{%extends "admin/base.html"%}
+{% block title %}User check{% endblock %}
+{% block content %}
+<h1>All Users</h1>
+<br>
+{%if not user%}
+<p class="text-muted">
+  No user present yet.</p>
+{%else%}
+<div class="row">
+  <div class="col-1"><strong>S.no</strong></div>
+  <div class="col"><strong>User Name</strong></div>
+  <div class="col"><strong>User Type</strong></div>
+  <div class="col"><strong>Number of books currently issued</strong></div>
+  <div class="col"><strong>Number of time books issued</strong></div>
+  <div class="col"><strong>Number of time books purchased</strong></div>
+  <div class="col"><strong>Issue limit</strong></div>
+  <div class="col"><strong>Issue/Revoke Button</strong></div>
+</div>
+<hr>
+{%set count=namespace(val=0)%}
+{%for u in user%}
+{%if not u.has_role("Admin")%}
+{%set count.val= count.val+1%}
+<div class="row">
+  <div class="col-1">{{count.val}}.</div>
+  <div class="col">{{u["username"]}}</div>
+  <div class="col">{%if u.has_role("Admin")%} Admin/Librarian{%elif u.has_role("Member")%} Subscribed{%else%}
+    Normal{%endif%}</div>
+  <div class="col">{%if u['id'] in cissue%}{{cissue[u['id']]}}{%else%}0{%endif%}</div>
+  <div class="col">{{u['issue']|length}}</div>
+  <div class="col">{{u['purchase']|length}}</div>
+  <div class="col">{%if u.has_role("Member")%}10{%else%}5{%endif%}</div>
+  <div class="col"><a href="/admin/users/{{u['id']}}"><button class="btn btn-danger">Issue/Revoke!</button></a></div>
+</div>
+<hr>
+{%endif%}
+{%endfor%}
+{%endif%}
+{% endblock %}

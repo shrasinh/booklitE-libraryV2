@@ -1,0 +1,13 @@
+{% macro render_with_errors(field,size) %}
+<div id="{{ field.id|default('form-field') }}">
+  <div class="row mb-3">
+    <div class="col-2">{{ field.label }}</div>
+    <div class="{{size|default('col-2')}}">{{ field(**kwargs) }}</div>
+  </div>
+  {% if field.errors %}
+  <ul style="color: red;">
+    {% for error in field.errors %}<li class="field">{{ error }}</li>{% endfor %}
+  </ul>
+  {% endif %}
+</div>
+{% endmacro %}

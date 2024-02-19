@@ -1,0 +1,35 @@
+{%extends "base.html"%}
+{% block title %}Purchased Books{% endblock %}
+{% block content %}
+<h1>Purchased Books</h1>
+<br>
+{%if not pdetails%}
+<p class="text-muted">
+    No book purchase records found.</p>
+{%else%}
+<div class="row">
+    <div class="col-1"><strong>S.no</strong></div>
+    <div class="col"><strong>Book Name</strong></div>
+    <div class="col"><strong>Section Name</strong></div>
+    <div class="col"><strong>Author Name</strong></div>
+    <div class="col"><strong>Price</strong></div>
+    <div class="col"><strong>Purchase Date</strong></div>
+    <div class="col"><strong>Download Button</strong></div>
+</div>
+<hr>
+{%for book in pdetails%}
+<div class="row">
+    <div class="col-1">{{loop.index}}.</div>
+    <div class="col"><a href="/book/{{book['book_id']}}">{{book.book["name"]}}</a></div>
+    <div class="col">{{book.book.section["name"]}}</div>
+    <div class="col">{{book.book["author"]}}</div>
+    <div class="col">{{book["price"]}}</div>
+    <div class="col">{{book["purchase_date"]}}</div>
+    <div class="col"><a href="/user/purchasedbooks/download/{{book['book_id']}}"><button
+                class="btn btn-success">Download!</button></a></div>
+</div>
+<hr>
+{%endfor%}
+{%endif%}
+
+{% endblock %}

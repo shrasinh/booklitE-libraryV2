@@ -1,0 +1,77 @@
+{%extends "base.html"%}
+{% block title %}Home{% endblock %}
+{% block content %}
+
+<figure class="text-end">
+  <blockquote class="blockquote">
+    <p>We read to know we are not alone.</p>
+  </blockquote>
+  <figcaption class="blockquote-footer">
+    C.S. Lewis
+  </figcaption>
+</figure>
+
+<div class="bg-image p-5"
+  style="background-image: url('https://en.idei.club/uploads/posts/2023-06/1687399608_en-idei-club-p-indian-library-dizain-krasivo-4.jpg');">
+  <div class="mask mx-auto p-5 text-center shadow-1-strong rounded mb-5 text-white border border-primary"
+    style="background-color: rgba(0, 0, 0, 0.6);width:50%">
+
+    <h1 style="font-family:Courier New, Courier, monospace">BookLit: <h2
+        style="font-family:lucida handwriting,brush script,cursive">A Place of Books and Literature</h2>
+    </h1>
+    <p class="lead" style="font-family:lucida,console, monaco">
+      <br><br>
+      Search, Issue, Purchase from a variety of Top rated collection of Books
+      <br>
+      written by well-known authors.
+      <br><br>
+      Become a subscribed member to enjoy the text-to-speech version of ebooks
+      <br>
+      and <a href="/policies">much more.</a>
+    </p>
+  </div>
+</div>
+<br>
+
+<div>
+  <h1>Sections</h1>
+  {%if not sections%}
+  <p class="text-muted">
+    No sections are currently present.</p>
+  {%endif%}
+  <br>
+  {%for section in sections%}
+  {%if section.book%}
+  <div class="row">
+    <div class="row justify-content-between">
+      <div class="col-3">
+        <h3 style="font-family:Times New Roman" data-bs-toggle="popover" data-bs-placement="right"
+          data-bs-title="Description" data-bs-custom-class="custom-popover"
+          data-bs-content="{%if section['description'] %}{{section['description']}}{%else%}No description.{%endif%}">
+          <strong>{{section["name"]}}</strong>
+        </h3>
+      </div>
+      <div class="col-3 text-muted">Date created:{{section["date_created"]}}</div>
+    </div>
+    <hr>
+    <div class="row">
+      {%for book in section.book|reverse%}
+      <div class="col-2">
+        <div class="row"><img src="/static/thumbnail/{{book['thumbnail']}}" class="img-fluid img-thumbnail"></div>
+        <div class="row"><a href="/book/{{book['id']}}">{{book["name"]}}</a></div>
+        <div class="row"><span>Author: {{book["author"]}}</span></div>
+        <div class="row"><span> Language: {{book["language"]}}</span></div>
+        <div class="row"><span> Rating:{%if book["id"] in rating%} {{rating[book["id"]]}} {%else%} No rating
+            yet.{%endif%}</span></div>
+      </div>
+      <div class="col-1"></div>
+      {%endfor%}
+    </div>
+  </div>
+  <br>
+  {%endif%}
+  {%endfor%}
+</div>
+
+
+{% endblock %}

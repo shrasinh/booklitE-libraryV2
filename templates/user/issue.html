@@ -1,0 +1,92 @@
+{%extends "base.html"%}
+{% block title %}Issued books{% endblock %}
+{% block content %}
+<div>
+  <h1>Currently Issued Books</h1>
+  <br>
+  {%if not cissue%}
+  <p class="text-muted">
+    No books are currently issued.</p>
+  {%else%}
+  <div class="row">
+    <div class="col-1"><strong>S.no</strong></div>
+    <div class="col"><strong>Book Name</strong></div>
+    <div class="col"><strong>Section Name</strong></div>
+    <div class="col"><strong>Author Name</strong></div>
+    <div class="col"><strong>Issue Date</strong></div>
+    <div class="col"><strong>Return Date</strong></div>
+    <div class="col"><strong>Read Button</strong></div>
+    <div class="col"><strong>Return Button</strong></div>
+  </div>
+  <hr>
+  {%for book in cissue%}
+  <div class="row">
+    <div class="col-1">{{loop.index}}.</div>
+    <div class="col"><a href="/book/{{book['book_id']}}">{{book.book["name"]}}</a></div>
+    <div class="col">{{book.book.section["name"]}}</div>
+    <div class="col">{{book.book["author"]}}</div>
+    <div class="col">{{book["issue_date"]}}</div>
+    <div class="col">{{book["return_date"]}}</div>
+    <div class="col"><a href="/user/issuedbooks/view/{{book['book_id']}}"><button
+          class="btn btn-success">Read!</button></a></div>
+    <div class="col"><button class="btn btn-danger" data-bs-toggle="modal"
+        data-bs-target="#returnModal{{book['id']}}">Return!</button>
+    </div>
+    <div class="modal fade" id="returnModal{{book['id']}}" tabindex="-1"
+      aria-labelledby="returnModal{{book['id']}}Label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="returnModal{{book['id']}}Label">Return confirmation</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            Are you sure that you want to return the book <strong>{{book.book["name"]}}</strong>?<br><br>
+            <em><strong>Note:</strong> You can reissue it again if it is available for issue and your issue limit is not
+              exceeded.</em>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <a href="/user/issuedbooks/return/{{book['book_id']}}"><button type="button"
+                class="btn btn-danger">Return</button></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr>
+  {%endfor%}
+  {%endif%}
+</div>
+<br><br><br><br>
+<div>
+  <h1>Previous Issued Books</h1>
+  <br>
+  {%if not pissue%}
+  <p class="text-muted">
+    No previously issued book records found.</p>
+  {%else%}
+  <div class="row">
+    <div class="col-1"><strong>S.no</strong></div>
+    <div class="col"><strong>Book Name</strong></div>
+    <div class="col"><strong>Section Name</strong></div>
+    <div class="col"><strong>Author Name</strong></div>
+    <div class="col"><strong>Issue Date</strong></div>
+    <div class="col"><strong>Return Date</strong></div>
+  </div>
+  <hr>
+  {%for book in pissue%}
+  <div class="row">
+    <div class="col-1">{{loop.index}}.</div>
+    <div class="col"><a href="/book/{{book['book_id']}}">{{book.book["name"]}}</a></div>
+    <div class="col">{{book.book.section["name"]}}</div>
+    <div class="col">{{book.book["author"]}}</div>
+    <div class="col">{{book["issue_date"]}}</div>
+    <div class="col">{{book["return_date"]}}</div>
+  </div>
+  <hr>
+  {%endfor%}
+  {%endif%}
+</div>
+
+{% endblock %}

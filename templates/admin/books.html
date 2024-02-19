@@ -1,0 +1,125 @@
+{%extends "admin/base.html"%}
+{% block title %}Book arrange{% endblock %}
+{% block content %}
+
+<h1>All Books</h1>
+<br>
+<a href="/admin/books/create"><button class="btn btn-outline-primary" type="submit">+ Add new book</button></a>
+<br><br>
+{%if not book%}
+<p class="text-muted">
+  No books added yet.</p>
+{%else%}
+<div class="row">
+  <div class="col-1"><strong>S.no</strong></div>
+  <div class="col"><strong>Book Name</strong></div>
+  <div class="col"><strong>Available copies</strong></div>
+  <div class="col"><strong>Number of current issue</strong></div>
+  <div class="col"><strong>Number of time issued</strong></div>
+  <div class="col"><strong>Number of time purchased</strong></div>
+  <div class="col"><strong>View Button</strong></div>
+  <div class="col"><strong>Delete Button</strong></div>
+</div>
+<hr>
+{%for b in book%}
+<div class="row">
+  <div class="col-1">{{loop.index}}.</div>
+  <div class="col"><a href="/book/{{b['id']}}">{{b["name"]}}</a></div>
+  <div class="col">{{b['noofcopies']}}</div>
+  <div class="col">{%if b['id'] in cissue%}{{cissue[b['id']]}}{%else%}0{%endif%}</div>
+  <div class="col">{{b['issue']|length}}</div>
+  <div class="col">{{b['purchase']|length}}</div>
+  <div class="col"><button class="btn btn-info" data-bs-toggle="modal"
+      data-bs-target="#viewModal{{b['id']}}">View!</button>
+  </div>
+  <div class="modal fade" id="viewModal{{b['id']}}" tabindex="-1" aria-labelledby="viewModal{{b['id']}}Label"
+    aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="viewModal{{b['id']}}Label">Book Details</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <a href="/admin/books/view/{{b['id']}}" style="text-decoration: none;"><svg xmlns="http://www.w3.org/2000/svg"
+              width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+              <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0" />
+              <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7" />
+            </svg>View how it looks to the users</a>
+          <br><br>
+          <div class="row mb-3">
+            <div class="col">Name</div>
+            <div class="col">{{b["name"]}}</div>
+          </div>
+          <div class="row mb-3">
+            <div class="col">Content</div>
+            <div class="col" style="word-break: break-all;">{{b["content"]}}</div>
+          </div>
+          <div class="row mb-3">
+            <div class="col">Author</div>
+            <div class="col">{{b["author"]}}</div>
+          </div>
+          <div class="row mb-3">
+            <div class="col">Section</div>
+            <div class="col">{{b.section["name"]}}</div>
+          </div>
+          <div class="row mb-3">
+            <div class="col">Language</div>
+            <div class="col">{{b["language"]}}</div>
+          </div>
+          <div class="row mb-3">
+            <div class="col">Price</div>
+            <div class="col">{{b["price"]}}</div>
+          </div>
+          <div class="row mb-3">
+            <div class="col">Currently issued by</div>
+            <div class="col">
+              {%set present=namespace(iterate=false)%}
+              {%for ib in b.issue%}
+              {%if ib.return_status==0%}
+              {%set present.iterate=true%}
+              <div class="row">
+                <div class="row"><a href="/admin/users/{{ib['user_id']}}">{{ib.user["username"]}}</a></div>
+                <div class="row"><span>Return Date: {{ib["return_date"]}}</span></div>
+              </div>
+              {%endif%}
+              {%endfor%}
+              {%if not present.iterate%}<p class="text-muted">The book is not currently issued by anyone.</p>{%endif%}
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <a href="/admin/books/{{b['id']}}"><button type="button" class="btn btn-info">Edit</button></a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col"><button class="btn btn-danger" data-bs-toggle="modal"
+      data-bs-target="#deleteModal{{b['id']}}">Delete!</button>
+  </div>
+  <div class="modal fade" id="deleteModal{{b['id']}}" tabindex="-1" aria-labelledby="deleteModal{{b['id']}}Label"
+    aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="deleteModal{{b['id']}}Label">Delete confirmation</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Are you sure that you want to delete the book <strong><a
+              href="/book/{{b['id']}}">{{b['name']}}</a></strong>?<br><br>
+          <em><strong>Note:</strong> All the users having access to the book will lose it as well.</em>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <a href="/admin/books/{{b['id']}}/delete"><button type="button" class="btn btn-danger">Delete</button></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<hr>
+{%endfor%}
+{%endif%}
+{% endblock %}

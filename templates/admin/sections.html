@@ -1,0 +1,96 @@
+{%extends "admin/base.html"%}
+{% block title %}Shelf{% endblock %}
+{% block content %}
+<h1>All sections</h1>
+<br>
+<a href="/admin/sections/create"><button class="btn btn-outline-primary" type="submit">+ Create a new
+    section</button></a>
+<br><br>
+{%if not sections%}
+<p class="text-muted">
+  No section added yet.</p>
+{%else%}
+<div class="row">
+  <div class="col-1"><strong>S.no</strong></div>
+  <div class="col"><strong>Section Name</strong></div>
+  <div class="col"><strong>Date of creation</strong></div>
+  <div class="col"><strong>Number of books</strong></div>
+  <div class="col"><strong>View Button</strong></div>
+  <div class="col"><strong>Delete Button</strong></div>
+</div>
+<hr>
+
+{%for section in sections%}
+<div class="row">
+  <div class="col-1">{{loop.index}}.</div>
+  <div class="col">{{section["name"]}}</div>
+  <div class="col">{{section["date_created"]}}</div>
+  <div class="col">{{section.book|length}}</div>
+  <div class="col"><button class="btn btn-info" data-bs-toggle="modal"
+      data-bs-target="#viewModal{{section['id']}}">View!</button>
+  </div>
+  <div class="modal fade" id="viewModal{{section['id']}}" tabindex="-1"
+    aria-labelledby="viewModal{{section['id']}}Label" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="viewModal{{section['id']}}Label">Section Details</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row mb-3">
+            <div class="col">Name</div>
+            <div class="col">{{section["name"]}}</div>
+          </div>
+          <div class="row mb-3">
+            <div class="col">Description</div>
+            <div class="col">{{section["description"]}}</div>
+          </div>
+          <div class="row mb-3">
+            <div class="col">Books present</div>
+            {%if not section.book%}
+            <div class="col text-muted">No books are currently present in the section.</div>
+            {%else%}
+            <div class="col">
+              {%for b in section.book%}
+              <div class="row"><a href="/admin/books/{{b['id']}}">{{b["name"]}}</a></div>
+              {%endfor%}
+            </div>
+            {%endif%}
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <a href="/admin/sections/{{section['id']}}"><button type="button" class="btn btn-info">Edit</button></a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col"><button class="btn btn-danger" data-bs-toggle="modal"
+      data-bs-target="#deleteModal{{section['id']}}">Delete!</button>
+  </div>
+  <div class="modal fade" id="deleteModal{{section['id']}}" tabindex="-1"
+    aria-labelledby="deleteModal{{section['id']}}Label" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="deleteModal{{section['id']}}Label">Delete confirmation</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Are you sure that you want to delete the section <strong>{{section["name"]}}</strong>?<br><br>
+          <em><strong>Note:</strong> All the books present in the section will be deleted as well.</em>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <a href="/admin/sections/{{section['id']}}/delete"><button type="button"
+              class="btn btn-danger">Delete</button></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<hr>
+{%endfor%}
+{%endif%}
+{% endblock %}

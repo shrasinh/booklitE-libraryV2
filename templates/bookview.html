@@ -1,0 +1,19 @@
+{%extends "base.html"%}
+{% block title %}{{name}}{% endblock %}
+{% block content %}
+<div class="text-center">
+  <br>
+  <h1>{{name}}</h1>
+  {%if current_user.has_role("Member") or current_user.has_role("Admin")%}
+  <br>
+  <audio controls>
+    <source src="/static/sound/{{sound}}" type="audio/mp3">
+    Your browser does not support the audio element.
+  </audio>
+  {%endif%}
+  <div class="book-container">
+    <br>
+    <object data="/static/books/{{file}}#toolbar=0" type="application/pdf" style="height:100vh;width:50%"> </object>
+  </div>
+</div>
+{% endblock %}

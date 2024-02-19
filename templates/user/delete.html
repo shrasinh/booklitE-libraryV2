@@ -1,0 +1,23 @@
+{%extends "base.html"%}
+{% block title %}Account delete{% endblock %}
+{% block content %}
+<div class="mx-auto text-center" style="width: 65%;padding-top:5%">
+    <div class="rounded border border-dark" style="background-color: rgba(252, 247, 247, 0.6);">
+        <h1>Delete confirmation</h1>
+        <br>
+        <p>Do you really want to delete the account? All information related to your account will be deleted.
+            <br>Be sure before you click the "I am absolutely sure" button to delete the account as this action can not
+            be undone.
+            <br>Changed your mind? Click the "Cancel" button to cancel the action.
+        </p>
+        <br>
+        <div class="row justify-content-center mb-3">
+            <div class="col-3"><a href="/accountdetails"><button class="btn btn-secondary">Cancel</button></a></div>
+            <div class="col-3">
+                <form method="GET"><button class="btn btn-danger" name="choice" value="yes">I am absolutely
+                        sure</button></form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

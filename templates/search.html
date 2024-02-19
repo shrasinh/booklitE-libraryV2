@@ -1,0 +1,73 @@
+{%extends "base.html"%}
+{% block title %}Search{% endblock %}
+{% block content %}
+
+<div>
+    <h1>Search</h1>
+    <br>
+    <form action="/search" method="get">
+        <div class="row">
+            <div class="col-3">
+                <input class="form-control me-2" type="search" value="{{book}}" name="bybook" placeholder="Book Name"
+                    aria-label="BookSearch">
+            </div>
+            <div class="col-3">
+                <input class="form-control me-2" type="search" value="{{section}}" name="bysection"
+                    placeholder="Section Name" aria-label="BookSearch">
+            </div>
+            <div class="col-3">
+                <input class="form-control me-2" type="search" value="{{author}}" name="byauthor"
+                    placeholder="Author Name" aria-label="BookSearch">
+            </div>
+            <div class="col-3">
+                <button class="btn btn-outline-success" type="submit">Search</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<br><br>
+<br><br>
+<div>
+    <h1>Search Results</h1>
+    <br>
+    <p class="text-muted">{{mb|length or ms|length}} results for the search query.</p>
+
+    {%if mb or ms%}
+    <div class="row">
+        <div class="col-1"><strong>S.no</strong></div>
+        <div class="col"><strong>Section Name</strong></div>
+        <div class="col"><strong>Book Name</strong></div>
+        <div class="col"><strong>Author Name</strong></div>
+    </div>
+    <hr>
+    {%endif%}
+
+
+    {%if ms%}
+    {%for section in ms%}
+    <div class="row">
+        <div class="col-1">{{loop.index}}.</div>
+        <div class="col">{{section["sname"]}}</div>
+        <div class="col"><a href="/book/{{section['bid']}}">{{section["bname"]}}</a></div>
+        <div class="col">{{section["author"]}}</div>
+    </div>
+    <hr>
+    {%endfor%}
+    {%endif%}
+
+
+    {%if mb%}
+    {%for book in mb%}
+    <div class="row">
+        <div class="col-1">{{loop.index}}.</div>
+        <div class="col">{{book.section["name"]}}</div>
+        <div class="col"><a href="/book/{{book['id']}}">{{book["name"]}}</a></div>
+        <div class="col">{{book["author"]}}</div>
+    </div>
+    <hr>
+    {%endfor%}
+    {%endif%}
+
+</div>
+{% endblock %}
