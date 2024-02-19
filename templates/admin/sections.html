@@ -44,7 +44,8 @@
           </div>
           <div class="row mb-3">
             <div class="col">Description</div>
-            <div class="col">{{section["description"]}}</div>
+            <div class="col">{%if section["description"]%}{{section["description"]}}{%else%}<p class="text-muted">No
+                description present.</p>{%endif%}</div>
           </div>
           <div class="row mb-3">
             <div class="col">Books present</div>

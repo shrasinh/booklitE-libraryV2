@@ -3,7 +3,7 @@
 {% block content %}
 <h1>All Users</h1>
 <br>
-{%if not user%}
+{%if user|length ==1%}
 <p class="text-muted">
   No user present yet.</p>
 {%else%}
@@ -25,7 +25,7 @@
 <div class="row">
   <div class="col-1">{{count.val}}.</div>
   <div class="col">{{u["username"]}}</div>
-  <div class="col">{%if u.has_role("Admin")%} Admin/Librarian{%elif u.has_role("Member")%} Subscribed{%else%}
+  <div class="col">{%if u.has_role("Member")%} Subscribed{%else%}
     Normal{%endif%}</div>
   <div class="col">{%if u['id'] in cissue%}{{cissue[u['id']]}}{%else%}0{%endif%}</div>
   <div class="col">{{u['issue']|length}}</div>

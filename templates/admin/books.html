@@ -52,8 +52,10 @@
             <div class="col">{{b["name"]}}</div>
           </div>
           <div class="row mb-3">
-            <div class="col">Content</div>
-            <div class="col" style="word-break: break-all;">{{b["content"]}}</div>
+            <div class="col">Description</div>
+            <div class="col" style="word-break: break-all;">{%if b["content"]%}{{b["content"]}}{%else%}<p
+                class="text-muted">No
+                description present.</p>{%endif%}</div>
           </div>
           <div class="row mb-3">
             <div class="col">Author</div>

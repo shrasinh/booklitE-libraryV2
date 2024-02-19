@@ -38,10 +38,12 @@
   {%if not sections%}
   <p class="text-muted">
     No sections are currently present.</p>
-  {%endif%}
   <br>
+  {%else%}
+  {%set present=namespace(iterate=0)%}
   {%for section in sections%}
   {%if section.book%}
+  {%set present.iterate=1%}
   <div class="row">
     <div class="row justify-content-between">
       <div class="col-3">
@@ -71,6 +73,9 @@
   <br>
   {%endif%}
   {%endfor%}
+  {%if not present.iterate%}<p class="text-muted">
+    No sections are currently present.</p>{%endif%}
+  {%endif%}
 </div>
 
 

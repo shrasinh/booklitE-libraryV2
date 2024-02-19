@@ -16,8 +16,10 @@
     <div class="row">
       <p><strong>Language:</strong> {{bookdetails["language"]}}</p>
     </div>
-    <div class="row">{%if bookdetails["content"] %}<h4>About the book</h4>
-      <p style="word-break: break-all;;">{{bookdetails["content"]}}</p>{%endif%}
+    <div class="row">
+      <h4>About the book</h4>
+      {%if bookdetails["content"] %}<p style="word-break: break-all;;">{{bookdetails["content"]}}</p>{%else%}<p
+        class="text-muted">No description present.</p>{%endif%}
     </div>
     <div class="row">
       {% if bookdetails["noofcopies"]>0 %}

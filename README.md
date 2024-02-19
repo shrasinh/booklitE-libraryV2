@@ -1,7 +1,7 @@
 # BookLit
 ![image](images/home-page.png)
 
-This is a library management system/e-library built on flask framework, with more focus on the backend.
+This is a library management system/e-library built on flask framework.
 
 ## To run the application
 
@@ -55,9 +55,10 @@ It consists of the following featues:
 
 ## Technologies used
 - Flask - the main web framework
-- bcrypt - to encrypt the password
-- zxcvbn - to check the password strength
 - Flask-Security-Too - to provide secure login, registration, authentication & Role based access
+    - bcrypt - to encrypt the password - used by flask-security-too 
+    - zxcvbn - to check the password strength - used by flask-security-too 
+    - bleach - HTML sanitizing library - used by flask-security-too 
 - Flask-Migrate - for db migration
 - Flask-SQLAlchemy - for object-relational mapping
 - Flask-WTF and WTForms - for form creation and validation
