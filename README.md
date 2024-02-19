@@ -1,4 +1,5 @@
 # BookLit
+![image](images/home-page.png)
 
 This is a library management system/e-library built on flask framework.
 
@@ -14,6 +15,10 @@ pip install -r requirements.txt
 - After installing all the dependencies, type in the terminal
 ```
 python main.py
+```
+- Open a browser and type out the following url
+```
+http://127.0.0.1:5500/
 ```
 
 ## To do database migration
