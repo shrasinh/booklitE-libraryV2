@@ -154,13 +154,13 @@ def rating():
     books=db.session.query(Books).all()
     ibook=db.session.query(IssuedBook.book_id).filter(IssuedBook.user_id==current_user.id).all()
     pbook=db.session.query(PurchasedBook.book_id).filter(PurchasedBook.user_id==current_user.id).all()
-    l,d=set(),{}
+    ratedbookid,id_to_book=set(),{}
     for u in userrating:
-        l.add(u.book_id)
-    notrated={i[0] for i in pbook+ibook if not i[0] in l}
-    for b in books:
-        d[b.id]=b
-    return render_template('user/rating.html',urating=userrating,notrated=notrated,book=d)
+        ratedbookid.add(u.book_id)
+    notrated={i.id for i in pbook+ibook if not i.id in ratedbookid}
+    for bk in books:
+        id_to_book[bk.id]=bk
+    return render_template('user/rating.html',urating=userrating,notrated=notrated,book=id_to_book)
 
 @app.route('/user/rating/<int:id>',methods=["GET","POST"])
 @auth_required()
@@ -178,23 +178,26 @@ def ratingview(id):
         return redirect("/user/rating")
     return render_template("user/ratingupdatecreate.html",form=form,book=userrating.book)
     
-@app.route('/user/rating/<int:id>/create',methods=["GET","POST"])
+@app.route('/user/rating/<int:book_id>/create',methods=["GET","POST"])
 @auth_required()
 @roles_required('User')
-def ratingcreate(id):
-    userrating=db.session.query(Ratings).filter(Ratings.user_id==current_user.id,Ratings.book_id==id).first()
+def ratingcreate(book_id):
+    userrating=db.session.query(Ratings).filter(Ratings.user_id==current_user.id,Ratings.book_id==book_id).first()
     if userrating:
         flash("You already rated the book!!Try to update it.")
         return redirect(f"/user/rating/{userrating.id}")
-    ibook=db.session.query(IssuedBook).filter(IssuedBook.user_id==current_user.id,IssuedBook.book_id==id).first()
-    pbook=db.session.query(PurchasedBook).filter(PurchasedBook.user_id==current_user.id,PurchasedBook.book_id==id).first()
+    ibook=db.session.query(IssuedBook).filter(IssuedBook.user_id==current_user.id,IssuedBook.book_id==book_id).first()
+    pbook=db.session.query(PurchasedBook).filter(PurchasedBook.user_id==current_user.id,PurchasedBook.book_id==book_id).first()
     if not ibook and not pbook:
         flash("You have not purchased or issued the book.")
         return redirect("/user/rating")
-    book=ibook.book or pbook.book
+    if ibook:
+        book=ibook.book 
+    if pbook.book:
+        book=pbook.book 
     form=RatingForm()
     if form.validate_on_submit():
-        row=Ratings(user_id=current_user.id,book_id=id,rating=form.rating.data,feedback=form.feedback.data)
+        row=Ratings(user_id=current_user.id,book_id=book_id,rating=form.rating.data,feedback=form.feedback.data)
         db.session.add(row)
         db.session.commit()
         flash("The book rating is successfully submitted.")
