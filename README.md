@@ -75,19 +75,19 @@ It consists of the following featues:
 
 - `instance folder` has the sqlite database, *library.sqlite3*.
 - `migrations folder` has files for database migrations. More about it is [here](https://flask-migrate.readthedocs.io/en/latest/).
-- `application folder` contains the python files need by the controllers.
+- `application folder` contains the python files needed by the controllers.
     + `models.py` has the ORM models of the database tables. More about it is [here](https://flask-sqlalchemy.palletsprojects.com/en/3.1.x/quickstart/).
-    + `forms.py` has the flask forms used in the app.
+    + `forms.py` has the flask wtforms used in the app.
     + `setup.py` has all the setup configurations and initializations for the app and some functions used by other parts of the app. 
 - `controllers folder` has the  controllers and api of the app.
     + `Admin.py` has controllers related to the role of *Admin*.
     + `User.py` has controllers related to the role of *User*.
     + `Generic.py` has controllers that are not related to any specific role.
-    + `Api.py` has APIs to generate graph and to do *CRUD* operations on books & sections.
-- `static folder` contains the static files used in the app.
-    + `books folder` stores the books' pdfs.
-    + `sound folder` stores the books' text-to-speech sound files.
-    + `thumbnail folder` stores the books' thumbnails.
+    + `Api.py` has APIs to get data for graph generation and to do *CRUD* operations on books & sections.
+- `static folder` will contain the static files used in the app.
+    + `books folder` will store the books' pdfs.
+    + `sound folder` will store the books' text-to-speech sound files.
+    + `thumbnail folder` will store the books' thumbnails.
     + `graph.png` for admin dashboard.
 - `templates folder` contains the html templates for the app.
     + `admin folder` has templates related to the role of *Admin*.
