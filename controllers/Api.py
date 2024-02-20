@@ -135,6 +135,16 @@ class SectionCRUD(Resource):
   def delete(self,id):
     section=db.session.query(Sections).filter(Sections.id==id).first()
     if section:
+        for book in section.book:
+          bookloc=bstorage(book.storage)
+          thumbnailloc=tstorage(book.thumbnail)
+          soundloc=sstorage(book.sound)
+          if os.path.exists(bookloc):
+            os.remove(bookloc)
+          if os.path.exists(thumbnailloc):
+            os.remove(thumbnailloc)
+          if os.path.exists(soundloc):
+            os.remove(soundloc)
         db.session.delete(section)
         db.session.commit()
         return "Successfully deleted!!",204

@@ -18,7 +18,7 @@
     </div>
     <div class="row">
       <h4>About the book</h4>
-      {%if bookdetails["content"] %}<p style="word-break: break-all;;">{{bookdetails["content"]}}</p>{%else%}<p
+      {%if bookdetails["content"] %}<p style="word-break: break-word;;">{{bookdetails["content"]}}</p>{%else%}<p
         class="text-muted">No description present.</p>{%endif%}
     </div>
     <div class="row">
@@ -152,7 +152,7 @@
         </span>
       </div>
       <div class="row">
-        <p style="inline-size: 100%;word-break: break-all;padding-left: 0%;">{{rating["feedback"]}}</p>
+        <p style="inline-size: 100%;word-break: break-word;padding-left: 0%;">{{rating["feedback"]}}</p>
       </div>
       <hr>
     </div>
