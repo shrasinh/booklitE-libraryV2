@@ -157,7 +157,7 @@ def rating():
     ratedbookid,id_to_book=set(),{}
     for u in userrating:
         ratedbookid.add(u.book_id)
-    notrated={i.id for i in pbook+ibook if not i.id in ratedbookid}
+    notrated={i[0] for i in pbook+ibook if not i[0] in ratedbookid}
     for bk in books:
         id_to_book[bk.id]=bk
     return render_template('user/rating.html',urating=userrating,notrated=notrated,book=id_to_book)
