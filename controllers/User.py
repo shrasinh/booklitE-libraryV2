@@ -193,7 +193,7 @@ def ratingcreate(book_id):
         return redirect("/user/rating")
     if ibook:
         book=ibook.book 
-    if pbook.book:
+    if pbook:
         book=pbook.book 
     form=RatingForm()
     if form.validate_on_submit():
