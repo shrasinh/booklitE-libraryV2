@@ -183,6 +183,7 @@ def adminusersdetails(id):
                         issue=db.session.query(IssuedBook).filter(IssuedBook.id==i).first()
                         issue.book.noofcopies+=1
                         issue.return_status=1
+                        issue.return_date=datetime.now()
                         flash(f"The access to {issue.book.name} is successfully revoked from the user.")
                 if form.issue:
                     for i in form.issue.data:
