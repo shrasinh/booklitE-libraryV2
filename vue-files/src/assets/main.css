@@ -1,0 +1,13 @@
+input:not([type='submit']),
+textarea {
+  border-color: rgb(94, 162, 246) !important;
+}
+
+input[type="submit"] {
+  margin-left: 0.5%;
+}
+
+.custom-popover {
+  --bs-popover-header-bg: rgb(94, 162, 246);
+  --bs-popover-header-color: rgb(36, 36, 36);
+}

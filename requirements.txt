@@ -12,3 +12,4 @@ WTForms==3.1.2
 gtts==2.5.0
 zxcvbn==4.4.28
 bleach==6.1.0
+celery[redis]==5.4.0
