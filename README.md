@@ -105,3 +105,27 @@ It consists of the following featues:
 + The default admin login credentials are username: librarian, email: librarian@gmail.com, password: pass#word12 . This can be changed in setup.py file.
 + The text-to-speech feature of the app reads the pdf file's text. However this might not be a perfect reading due some limitions of [pdf text extraction](https://pypdf.readthedocs.io/en/stable/user/extract-text.html#why-text-extraction-is-hard).
 + Internet connection is required for the bootstrap css and js files, some background images, password breach checking while registration and also for converting the text to speech as it uses Google-Text-To-Speech(gtts) module.
+
+## Project Setup
+
+```sh
+npm install
+```
+
+### Compile and Hot-Reload for Development
+
+```sh
+npm run dev
+```
+
+### Compile and Minify for Production
+
+```sh
+npm run build
+```
+
+### Lint with [ESLint](https://eslint.org/)
+
+```sh
+npm run lint
+```
