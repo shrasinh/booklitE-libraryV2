@@ -65,7 +65,7 @@ def bookpurchase(id):
 def userconfirmdelete():
     a=request.args.get("choice")
     if a=="yes":
-        db.session.delete(current_user)
+        app.security.datastore.add_role_to_user(current_user)
         db.session.commit()
         flash("Your account is successfully deleted.")
         return redirect("/")

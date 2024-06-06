@@ -2,8 +2,12 @@ from application.setup import app,issuedbooktime
 from application.models import db,Books,Ratings,Sections,PaymentDetails
 from application.forms import PaymentDetailsForm
 from flask import redirect, render_template,flash,request
-from flask_security import auth_required,current_user
+from flask_security import current_user,logout_user
 from application.forms import PaymentDetailsForm
+from string import digits,ascii_letters
+from random import SystemRandom
+
+error={'response':{'errors':['User is not logged in.']}},400
 
 @app.route('/')
 def home():
@@ -14,25 +18,26 @@ def home():
         d[book[1]]=book[0]
     return render_template('index.html',sections=section,rating=d)
 
-@app.route('/policies')
-def policies():
-    return render_template('policies.html')
-
-@app.route('/user/roleassign')
-@auth_required()
+@app.route('/user/role')
 def userroleassign():
-    if current_user.roles==[]:
-        app.security.datastore.add_role_to_user(current_user,"User")
-    db.session.commit()
-    flash("You are successfully logged in.")
-    return redirect("/")
+    if current_user.is_authenticated:
+        if current_user.roles==[]:
+            app.security.datastore.add_role_to_user(current_user,"User")
+        db.session.commit()
+        return [i.name for i in current_user.roles]
+    else:
+        return error
 
-@app.route('/post/logout')
-def postlogout():
-    if current_user and current_user.is_authenticated:
-        return redirect("/logout")
-    flash("You are successfully logged out.")
-    return redirect("/")
+@app.route('/logout')
+def logout():
+    if current_user.is_authenticated:
+        # changing the fs_uniquifier so that all the authentication tokens of the current user gets invalidated
+        current_user.fs_uniquifier=''.join(SystemRandom().choice(ascii_letters + digits) for _ in range(64))
+        db.session.commit()
+        logout_user()
+        return "Logout successful."
+    else:
+        return error
 
 @app.route("/random")
 def randombook():
@@ -102,21 +107,29 @@ def textsearch():
     return render_template('search.html',mb=matchb,ms=matchs,book=bybook,section=bysection,author=byauthor)
 
 @app.route('/accountdetails',methods=["GET","POST"])
-@auth_required()
 def account():
-    p=current_user.payment
-    if p:
-        form=PaymentDetailsForm(obj=p)
-    else:
-        form=PaymentDetailsForm()
-    if form.validate_on_submit():
+    if current_user.is_authenticated:
+        p=current_user.payment
         if p:
-            form.populate_obj(p)
-            flash("Payment details successfully updated.")
+            form=PaymentDetailsForm(obj=p)
         else:
-            row=PaymentDetails(cardno=form.cardno.data,expirydate=form.expirydate.data,cardname=form.cardname.data,user_id=current_user.id)
-            db.session.add(row)
-            flash("Payment details successfully added.")
-        db.session.commit()
-        return redirect("/accountdetails")
-    return render_template('account.html',form=form)
+            form=PaymentDetailsForm()
+        if form.validate_on_submit():
+            if p:
+                form.populate_obj(p)
+                flash("Payment details successfully updated.")
+            else:
+                row=PaymentDetails(cardno=form.cardno.data,expirydate=form.expirydate.data,cardname=form.cardname.data,user_id=current_user.id)
+                db.session.add(row)
+                flash("Payment details successfully added.")
+            db.session.commit()
+            return redirect("/accountdetails")
+        return render_template('account.html',form=form)
+    else:
+        return error
+
+@app.after_request
+def apply_cors(response):
+    response.headers["Access-Control-Allow-Origin"]="http://localhost:5173"
+    response.headers["Access-Control-Allow-Headers"]="Authentication-Token,content-type"
+    return response

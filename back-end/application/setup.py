@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_migrate import Migrate
+from flask_wtf import CSRFProtect
 from flask_security import Security, SQLAlchemyUserDatastore,hash_password
 from flask_restful import Api
 from application.models import Users,Roles,db,IssuedBook
@@ -25,11 +26,14 @@ app.config['SECURITY_USERNAME_REQUIRED']=True
 app.config['SECURITY_PASSWORD_COMPLEXITY_CHECKER']="zxcvbn"
 app.config['SECURITY_PASSWORD_CHECK_BREACHED']="best-effort"
 app.config['SECURITY_PASSWORD_BREACHED_COUNT']=5
-app.config['SECURITY_POST_LOGIN_VIEW']="/user/roleassign"
-app.config['SECURITY_POST_LOGOUT_VIEW']="/post/logout"
-app.config['SECURITY_POST_REGISTER_VIEW']="/user/roleassign"
-app.config['SECURITY_POST_VERIFY_URL']="/user/roleassign"
+app.config['SECURITY_LOGOUT_METHODS']=None
+app.config['SECURITY_TOKEN_MAX_AGE']=60*60*24
+app.config["SECURITY_CSRF_IGNORE_UNAUTH_ENDPOINTS"]=True
+app.config["SECURITY_CSRF_PROTECT_MECHANISMS"] = ["session", "basic"]
+app.config["WTF_CSRF_CHECK_DEFAULT"] = False
 
+# Enable CSRF protection
+CSRFProtect(app)
 
 # for db migration i.e to change the database schema
 migrate=Migrate(app,db)

@@ -11,3 +11,12 @@ input[type="submit"] {
   --bs-popover-header-bg: rgb(94, 162, 246);
   --bs-popover-header-color: rgb(36, 36, 36);
 }
+
+.form-text {
+  color: #E04848
+}
+
+.alert {
+  margin-top: 0.5%;
+  width: 70%
+}

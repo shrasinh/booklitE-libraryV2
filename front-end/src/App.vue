@@ -1,94 +1,109 @@
 <script setup>
+import {computed,onMounted} from 'vue'
 import { RouterLink, RouterView } from 'vue-router'
-import { reactive,nextTick } from 'vue';
+import {login, register, logout} from './components/access.js'
 import Modal from './components/Modal.vue'
-import * as bootstrap from "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.esm.min.js"
-import {h,render} from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
+import Alert from './components/Alert.vue'
+import {useModalStore,useIdentityStore,useAlertStore,useLoadingStore} from './stores/store.js'
 
-const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
-const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl))
-
-const modal = reactive({})
-window.bootstrap=bootstrap
-async function modalfunc(value) {
-  if (value == 'register') {
-    modal.id = 'registerModal'
-    modal.title = 'Let\'s Get You Signed Up.'
-    modal.body = h('form', [
-      h('div', { class: 'mb-3' }, h('input', { class: 'form-control', minlength: '4', maxlength: '32', placeholder: 'Username', required: true })),
-      h('div', { class: 'mb-3' }, h('input', { class: 'form-control', type: 'email', placeholder: 'Email Address', required: true })),
-      h('div', { class: 'mb-3' }, h('input', { class: 'form-control', type:'password', minlength: '8', placeholder: 'Password', required: true })),
-      h('div', { class: 'mb-3' }, h('input', { class: 'form-control', type: 'password', minlength: '8', placeholder: 'Reconfirm password', required: true })),
-      h('div', { class: 'd-grid gap-2' }, h('input', { class: 'btn btn-outline-primary', type: 'submit' })),
-    ])
-    modal.footer = h('a', { href: "#login", async onClick() {  modalfunc('login') }, 'data-bs-toggle': "modal" }, "Already have an account? Login")
+onMounted(() => {
+  if (sessionStorage.getItem("Authentication-Token")) {
+    useIdentityStore().identity = JSON.parse(sessionStorage.getItem("Identity")) || ['Unauthenticated']
   }
-  else if (value == 'login') { 
-    modal.id = 'loginModal'
-    modal.title = 'Welcome Back!'
-    modal.body = h('form', [
-      h('div', { class: 'mb-3' }, h('input', { class: 'form-control', minlength: '4', maxlength: '32', placeholder: 'Username', required: true })),
-      h('div', { class: 'mb-3' }, h('input', { class: 'form-control', type: 'password', minlength: '8', placeholder: 'Password', required: true })),
-      h('div'),h('div'),
-      h('div', { class: 'd-grid gap-2' }, h('input', { class: 'btn btn-outline-primary', type: 'submit' })),
-    ])
-    modal.footer = h('a', { href: "#register", onClick() { modalfunc('register') }, 'data-bs-toggle': "modal" }, "New user? Register")
+})
+
+function changetheme(value) {
+  if (value == 'dark') {
+    document.body.setAttribute("data-bs-theme", "dark")
+    document.getElementById("searchbutton").classList.remove('btn-outline-dark')
+    document.getElementById("searchbutton").classList.add('btn-outline-light')
   }
   else {
-    modal.id = 'logoutModal'
-    modal.title = 'Good Bye!'
-    modal.body = h('div','Do you want to logout?')
-    modal.footer = h('button', { class: 'btn btn-secondary' },'Confirm')
+    document.body.setAttribute("data-bs-theme", "light")
+    document.getElementById("searchbutton").classList.remove('btn-outline-light')
+    document.getElementById("searchbutton").classList.add('btn-outline-dark')
   }
-  await nextTick()
-  const l = new bootstrap.Modal(document.getElementById(modal.id))
-  document.addEventListener('closeModal', () => { 
-        l.hide();
-    });
-  console.log(l)
-  l.show()
-}  
+}
+
+const navbg = computed(() => {
+  if (useIdentityStore().identity.includes('Unauthenticated'))
+    return '#5e6eed'
+  else if (useIdentityStore().identity.includes('Admin'))
+    return '#1a55e3'
+  else
+    return '#248afd'
+})
+
 </script>
 
 <template>
-    <nav class="navbar navbar-expand-lg bg-primary">
-      <div class="container-fluid">
-          <RouterLink class="nav-link" to="/">
-            <i class="bi bi-book"></i>BookLit
-          </RouterLink>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#basenavbar">
-          <span class="navbar-toggler-icon"></span>
-        </button>
 
-        <div class="collapse navbar-collapse" id="basenavbar">
+  <nav class="navbar navbar-expand-lg" :style="{ backgroundColor: navbg }">
+    <div class="container-fluid">
+
+      <RouterLink class="nav-link" to="/">
+        <i class="bi bi-book"></i>BookLit
+      </RouterLink>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#Navbar">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="offcanvas offcanvas-end" tabindex="-1" id="Navbar">
+
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title" id="offcanvasNavbarLabel">
+            <RouterLink class="nav-link" to="/">
+              <i class="bi bi-book"></i>BookLit
+            </RouterLink>
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+        </div>
+
+        <div class="offcanvas-body">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
+            <li v-if="!useIdentityStore().identity.includes('Unauthenticated')" class="nav-item">
               <RouterLink class="nav-link" to="/accountdetails">Account Details</RouterLink>
             </li>
-            <li class="nav-item">
+
+            <li v-if="useIdentityStore().identity.includes('Admin')" class="nav-item">
               <RouterLink class="nav-link" to="/admin/dashboard">Librarian Dashboard</RouterLink>
             </li>
-            <li class="nav-item">
+            <li v-if="useIdentityStore().identity.includes('Admin')" class="nav-item">
               <RouterLink class="nav-link" to="/admin/books">Books</RouterLink>
             </li>
-            <li class="nav-item">
+            <li v-if="useIdentityStore().identity.includes('Admin')" class="nav-item">
               <RouterLink class="nav-link" to="/admin/sections">Sections</RouterLink>
             </li>
-            <li class="nav-item">
+            <li v-if="useIdentityStore().identity.includes('Admin')" class="nav-item">
               <RouterLink class="nav-link" to="/admin/users">Users</RouterLink>
             </li>
-            <li class="nav-item">
+
+            <li v-if="useIdentityStore().identity.includes('User')" class="nav-item">
               <RouterLink class="nav-link" to="/user/dashboard">User Dashboard</RouterLink>
             </li>
-            <li class="nav-item">
+            <li v-if="useIdentityStore().identity.includes('User')" class="nav-item">
               <RouterLink class="nav-link" to="/user/issuedbooks">Issued Books</RouterLink>
             </li>
-            <li class="nav-item">
+            <li v-if="useIdentityStore().identity.includes('User')" class="nav-item">
               <RouterLink class="nav-link" to="/user/purchasedbooks">Purchased Books</RouterLink>
             </li>
-            <li class="nav-item">
+            <li v-if="useIdentityStore().identity.includes('User')" class="nav-item">
               <RouterLink class="nav-link" to="/user/rating">Ratings</RouterLink>
             </li>
+            
+            <li v-if="!useIdentityStore().identity.includes('Unauthenticated')" class="nav-item">
+              <RouterLink id="logout" to="#logout" class="nav-link" @click="useModalStore().modalfunc(logout)" >
+                <i class="bi bi-box-arrow-right"></i>Logout
+              </RouterLink>
+            </li>
+            <li v-if="useIdentityStore().identity.includes('Unauthenticated')" class="nav-item">
+              <RouterLink id="login" to="#login" class="nav-link" @click="useModalStore().modalfunc(login)"  >Login</RouterLink>
+            </li>
+            <li v-if="useIdentityStore().identity.includes('Unauthenticated')" class="nav-item">
+              <RouterLink id="register" to="#register" class="nav-link" @click="useModalStore().modalfunc(register)" >Register</RouterLink>
+            </li>
+
             <li class="nav-item">
               <RouterLink class="nav-link" to="/policies">Policies</RouterLink>
             </li>
@@ -97,24 +112,33 @@ async function modalfunc(value) {
                 <i class="bi bi-shuffle"></i>Random
               </RouterLink>
             </li>
-            <li class="nav-item">
-              <RouterLink id="logout" to="#logout" class="nav-link" @click="modalfunc('logout')" data-bs-toggle="modal">
-                <i class="bi bi-box-arrow-right"></i>Logout
-              </RouterLink>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                Change theme
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#" @click="changetheme('dark')"><i class="bi bi-lightbulb"></i> Dark</a></li>
+                <li><a class="dropdown-item" href="#" @click="changetheme('light')"><i class="bi bi-lightbulb-fill"></i> Light</a></li>
+              </ul>
             </li>
-            <li class="nav-item">
-              <RouterLink id="login" to="#login" class="nav-link" @click="modalfunc('login')" data-bs-toggle="modal" >Login</RouterLink>
-          </li>
-          <li class="nav-item">
-            <RouterLink id="register" to="#register" class="nav-link" @click="modalfunc('register')" data-bs-toggle="modal" >Register</RouterLink>
-          </li>
-        </ul>
-          <input class="form-control me-2" type="search" id="bybook" placeholder="Book Name">
-          <button class="btn btn-outline-dark" type="submit">Search</button>
+          </ul>
+          <form class="d-flex">
+            <input class="form-control me-2" type="search" id="bybook" placeholder="Book Name">
+            <button id="searchbutton" class="btn btn-outline-dark" type="submit">Search</button>
+          </form>
+        </div>
+
       </div>
     </div>
   </nav>
-  <Modal :modal="modal"></Modal>
+ 
+  <div v-if="useLoadingStore().loading" class="modal-backdrop fade show">
+    <div class="spinner-grow text-primary position-absolute top-50 start-50 translate-middle" style="width: 3rem; height: 3rem;" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <Alert :alerts="useAlertStore().alerts"></Alert>
+  <Modal :modal="useModalStore().modal"></Modal>
   <RouterView />
 </template>
-
