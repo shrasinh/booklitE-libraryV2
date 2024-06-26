@@ -3,13 +3,9 @@ Flask==3.0.0
 Flask-Migrate==4.0.5
 Flask-Security-Too==5.3.3
 Flask-SQLAlchemy==3.1.1
-Flask-Restful==0.3.10
 Flask-WTF==1.2.1
-pypdf==3.17.4
 matplotlib==3.8.2
-requests==2.31.0
 WTForms==3.1.2
-gtts==2.5.0
 zxcvbn==4.4.28
 bleach==6.1.0
 celery[redis]==5.4.0
