@@ -1,20 +1,28 @@
 import { useAlertStore } from '../stores/store.js'
 
-export async function fetchfunct(url, options) {
-    options = Object.assign(Object.assign({ "Accept": "application/json" }, options.headers), options)
-    useAlertStore().alertremove(60000)
-    return fetch(url, options).catch(() => "Failed to fetch. Network error occured.")
+export async function fetchfunct ( url, options = { headers: {} } )
+{
+    options.headers[ "Accept" ] = "application/json"
+    return fetch( url, options ).catch( () => "Failed to fetch. Network error occured." )
 }
 
-export async function checkerror(response) {
-    if (response.status) {
+export async function checkerror ( response )
+{
+    if ( response.status )
+    {
         let data = await response.json()
-        for (const i of data.response.errors) {
-            useAlertStore().alerts.push({ msg: i, type: 'alert-danger' })
-        }
+        useAlertStore().alertpush( data.response.errors.map( e => { return { msg: e, type: 'alert-danger' } } ) )
     }
 
-    else {
-        useAlertStore().alerts.push({ msg: response, type: 'alert-danger' })
+    else
+    {
+        useAlertStore().alertpush( [ { msg: response, type: 'alert-danger' } ] )
     }
+}
+
+export async function checksuccess ( response )
+{
+    let data = await response.json()
+    useAlertStore().alertpush( [ { msg: data, type: 'alert-success' } ] )
+
 }

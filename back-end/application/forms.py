@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import (
     StringField,
     IntegerField,
+    FloatField,
     SelectField,
     TextAreaField,
     SelectMultipleField,
@@ -19,27 +20,7 @@ from wtforms.validators import (
 )
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 from datetime import datetime
-
-languages = {
-    "English (United States)": "en-US",
-    "Deutsch": "de-DE",
-    "UK English": "en-GB",
-    "español": "es-ES",
-    "español de Estados Unidos": "es-US",
-    "français": "fr-FR",
-    "हिन्दी": "hi-IN",
-    "Bahasa Indonesia": "id-ID",
-    "italiano": "it-IT",
-    "日本語": "ja-JP",
-    "한국의": "ko-KR",
-    "Nederlands": "nl-NL",
-    "polski": "pl-PL",
-    "português do Brasil": "pt-BR",
-    "русский": "ru-RU",
-    "普通话（中国大陆": "zh-CN",
-    "粤語（香港": "zh-HK",
-    "國語（臺灣)": "zh-TW",
-}
+from application.setup import languages
 
 
 class BookForm(FlaskForm):
@@ -68,7 +49,13 @@ class BookForm(FlaskForm):
     noofcopies = IntegerField(
         "Number of Copies available", validators=[InputRequired(), NumberRange(min=0)]
     )
-    price = IntegerField("Price", validators=[InputRequired(), NumberRange(min=0)])
+    price = FloatField("Price", validators=[InputRequired(), NumberRange(min=0)])
+
+    def validate_price(form, field):
+        if (not field.data % 1 == 0) and len(str(field.data).split(".")[1]) > 2:
+            raise ValidationError(
+                "The price should not have more than 2 decimal precision."
+            )
 
 
 class SectionForm(FlaskForm):

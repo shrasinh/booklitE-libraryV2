@@ -1,9 +1,11 @@
 from flask import Flask, Response, jsonify
 from flask.sessions import SecureCookieSessionInterface, SessionMixin
 from flask_migrate import Migrate
-from flask_wtf import CSRFProtect
-from flask_security import Security, SQLAlchemyUserDatastore, hash_password
-from flask_restful import Api
+from flask_security import (
+    Security,
+    SQLAlchemyUserDatastore,
+    hash_password,
+)
 from application.models import Users, Roles, db, IssuedBook
 import os
 from datetime import datetime
@@ -30,9 +32,7 @@ app.config["SECURITY_PASSWORD_CHECK_BREACHED"] = "best-effort"
 app.config["SECURITY_PASSWORD_BREACHED_COUNT"] = 5
 app.config["SECURITY_LOGOUT_METHODS"] = None
 app.config["SECURITY_TOKEN_MAX_AGE"] = 60 * 60 * 24
-app.config["SECURITY_CSRF_IGNORE_UNAUTH_ENDPOINTS"] = True
-app.config["SECURITY_CSRF_PROTECT_MECHANISMS"] = ["session", "basic"]
-app.config["WTF_CSRF_CHECK_DEFAULT"] = False
+app.config["WTF_CSRF_ENABLED"] = False
 
 
 # disabling sending of cookie
@@ -43,9 +43,6 @@ class CustomSessionInterface(SecureCookieSessionInterface):
 
 app.session_interface = CustomSessionInterface()
 
-# Enable CSRF protection to be able to set some of the app.config headers related csrf protection disabling
-CSRFProtect(app)
-
 
 class CustomResponse(Response):
     default_mimetype = "application/json"
@@ -55,6 +52,7 @@ class CustomResponse(Response):
         kwargs["headers"] = {
             "Access-Control-Allow-Origin": "http://localhost:5173",
             "Access-Control-Allow-Headers": "Authentication-Token,content-type",
+            "Access-Control-Allow-Methods": "*",
         }
         return super(CustomResponse, self).__init__(response, **kwargs)
 
@@ -70,9 +68,6 @@ app.response_class = CustomResponse
 
 # for db migration i.e to change the database schema
 migrate = Migrate(app, db)
-
-# instantiate the application's api
-api = Api(app)
 
 # for flask security setup
 user_datastore = SQLAlchemyUserDatastore(db, Users, Roles)
@@ -110,12 +105,16 @@ def issuedbooktime():
 
 
 # to get the path of book pdf
-def bstorage(l):
-    return os.path.join("static", "books", l)
+def bstorage(l=None, stype="store", id=None):
+    if stype == "retrieval":
+        return f"http://localhost:5500/book/pdf/{id}"
+    return os.path.join("files", "books", l)
 
 
 # to get the path of book thumbnail
-def tstorage(l):
+def tstorage(l, stype="store"):
+    if stype == "retrieval":
+        return "http://localhost:5500/static/thumbnail/" + l
     return os.path.join("static", "thumbnail", l)
 
 
@@ -124,3 +123,26 @@ def cardexpired(p):
     if datetime.now() > p.expirydate:
         return True
     return False
+
+
+# languages in which the books can be
+languages = {
+    "English (United States)": "en-US",
+    "Deutsch": "de-DE",
+    "UK English": "en-GB",
+    "español": "es-ES",
+    "español de Estados Unidos": "es-US",
+    "français": "fr-FR",
+    "हिन्दी": "hi-IN",
+    "Bahasa Indonesia": "id-ID",
+    "italiano": "it-IT",
+    "日本語": "ja-JP",
+    "한국의": "ko-KR",
+    "Nederlands": "nl-NL",
+    "polski": "pl-PL",
+    "português do Brasil": "pt-BR",
+    "русский": "ru-RU",
+    "普通话（中国大陆）": "zh-CN",
+    "粤語（香港）": "zh-HK",
+    "國語（臺灣）": "zh-TW",
+}

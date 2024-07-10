@@ -6,7 +6,8 @@
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-  <link rel="icon" type="image/x-icon" href="https://img.icons8.com/color/96/story-book.png">
+  <link rel="icon" type="image/x-icon" href="https://img.icons8.com/color/192/story-book.png">
+  <link rel="manifest" href="src/assets/manifest.json">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <script type="importmap">
     {
@@ -18,15 +19,13 @@
   <script type="module">
     import * as bootstrap from "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.esm.min.js"
     window.bootstrap = bootstrap
-    { [...document.querySelectorAll('[data-bs-toggle="tooltip"]')].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl)) }
-    { [...document.querySelectorAll('[data-bs-toggle="popover"]')].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl)) }
   </script>
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta charset="UTF-8">
 </head>
 
-<body style="font-family: Verdana,Tahoma,sans-serif;">
+<body style="font-family: Verdana,Tahoma,sans-serif;overflow-x: hidden!important;">
   <div id="app"></div>
   <script type="module" src="/src/main.js"></script>
 </body>

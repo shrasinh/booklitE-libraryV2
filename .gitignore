@@ -194,3 +194,7 @@ coverage
 *.sw?
 
 *.tsbuildinfo
+
+
+# app specific
+/files

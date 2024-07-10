@@ -1,144 +1,187 @@
 <script setup>
-import {computed,onMounted} from 'vue'
-import { RouterLink, RouterView } from 'vue-router'
-import {login, register, logout} from './components/access.js'
-import Modal from './components/Modal.vue'
-import Alert from './components/Alert.vue'
-import {useModalStore,useIdentityStore,useAlertStore,useLoadingStore} from './stores/store.js'
+  import { onMounted, watch } from 'vue'
+  import { RouterLink, RouterView } from 'vue-router'
+  import { storeToRefs } from 'pinia'
+  import { login, register, logout } from './components/access.js'
+  import Modal from './components/Modal.vue'
+  import Alert from './components/Alert.vue'
+  import Spinner from './components/Spinner.vue'
+  import Theme from './components/Theme.vue'
+  import Search from './components/Search.vue'
+  import { useModalStore, useIdentityStore, useAlertStore, useSearchStore } from './stores/store.js'
+  import router from './router/index.js'
+  import Install from './components/Install.vue'
 
-onMounted(() => {
-  if (sessionStorage.getItem("Authentication-Token")) {
-    useIdentityStore().identity = JSON.parse(sessionStorage.getItem("Identity")) || ['Unauthenticated']
-  }
-})
+  const { identity } = storeToRefs( useIdentityStore() )
+  const { book_ids } = storeToRefs( useSearchStore() )
 
-function changetheme(value) {
-  if (value == 'dark') {
-    document.body.setAttribute("data-bs-theme", "dark")
-    document.getElementById("searchbutton").classList.remove('btn-outline-dark')
-    document.getElementById("searchbutton").classList.add('btn-outline-light')
-  }
-  else {
-    document.body.setAttribute("data-bs-theme", "light")
-    document.getElementById("searchbutton").classList.remove('btn-outline-light')
-    document.getElementById("searchbutton").classList.add('btn-outline-dark')
-  }
-}
+  onMounted( () =>
+  {
+    if ( localStorage.getItem( "Authentication-Token" ) )
+    {
+      identity.value = JSON.parse( localStorage.getItem( "Identity" ) ) || [ 'Unauthenticated' ]
+    }
+  } )
 
-const navbg = computed(() => {
-  if (useIdentityStore().identity.includes('Unauthenticated'))
-    return '#5e6eed'
-  else if (useIdentityStore().identity.includes('Admin'))
-    return '#1a55e3'
-  else
-    return '#248afd'
-})
+  watch( identity, () =>
+  {
+    const root = document.documentElement
+    if ( identity.value.includes( 'User' ) )
+      root.style.setProperty( '--navbar-bg', '#248afd' )
+    else if ( identity.value.includes( 'Admin' ) )
+      root.style.setProperty( '--navbar-bg', '#1a55e3' )
+    else
+      root.style.setProperty( '--navbar-bg', '#5e6eed' )
+  } )
+
+  function random ()
+  {
+    if ( book_ids.value.length > 0 )
+    {
+      const id = book_ids.value[ Math.floor( Math.random() * book_ids.value.length ) ]
+      router.push( `/book/${ id }` )
+    }
+    else
+    {
+      useAlertStore().alertpush( [ { msg: 'No books are present in the library yet!', type: 'alert-danger' } ] )
+    }
+  }
 
 </script>
 
 <template>
 
-  <nav class="navbar navbar-expand-lg" :style="{ backgroundColor: navbg }">
+  <nav class="navbar sticky-top navbar-expand-lg">
     <div class="container-fluid">
 
-      <RouterLink class="nav-link" to="/">
-        <i class="bi bi-book"></i>BookLit
+      <RouterLink class="navbar-brand" to="/">
+        <i class="bi bi-book"></i> BookLit
       </RouterLink>
 
       <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#Navbar">
         <span class="navbar-toggler-icon"></span>
       </button>
-
       <div class="offcanvas offcanvas-end" tabindex="-1" id="Navbar">
 
         <div class="offcanvas-header">
-          <h5 class="offcanvas-title" id="offcanvasNavbarLabel">
-            <RouterLink class="nav-link" to="/">
-              <i class="bi bi-book"></i>BookLit
+          <h5 class="offcanvas-title" data-bs-dismiss="offcanvas">
+            <RouterLink to="/" class="navbar-brand">
+              <i class="bi bi-book"></i> BookLit
             </RouterLink>
           </h5>
           <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
         </div>
 
         <div class="offcanvas-body">
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li v-if="!useIdentityStore().identity.includes('Unauthenticated')" class="nav-item">
-              <RouterLink class="nav-link" to="/accountdetails">Account Details</RouterLink>
+          <ul class="navbar-nav me-auto">
+            <li v-if="identity.includes('User')" class="nav-item" data-bs-dismiss="offcanvas">
+              <RouterLink class="nav-link" to="/account">Account</RouterLink>
             </li>
 
-            <li v-if="useIdentityStore().identity.includes('Admin')" class="nav-item">
-              <RouterLink class="nav-link" to="/admin/dashboard">Librarian Dashboard</RouterLink>
+            <li v-if="identity.includes('Admin')" class="nav-item" data-bs-dismiss="offcanvas">
+              <RouterLink class="nav-link" to="/admin/dashboard">Dashboard</RouterLink>
             </li>
-            <li v-if="useIdentityStore().identity.includes('Admin')" class="nav-item">
-              <RouterLink class="nav-link" to="/admin/books">Books</RouterLink>
-            </li>
-            <li v-if="useIdentityStore().identity.includes('Admin')" class="nav-item">
+            <li v-if="identity.includes('Admin')" class="nav-item" data-bs-dismiss="offcanvas">
               <RouterLink class="nav-link" to="/admin/sections">Sections</RouterLink>
             </li>
-            <li v-if="useIdentityStore().identity.includes('Admin')" class="nav-item">
+            <li v-if="identity.includes('Admin')" class="nav-item" data-bs-dismiss="offcanvas">
+              <RouterLink class="nav-link" to="/admin/books">Books</RouterLink>
+            </li>
+            <li v-if="identity.includes('Admin')" class="nav-item" data-bs-dismiss="offcanvas">
               <RouterLink class="nav-link" to="/admin/users">Users</RouterLink>
             </li>
 
-            <li v-if="useIdentityStore().identity.includes('User')" class="nav-item">
+            <li v-if="identity.includes('User')" class="nav-item" data-bs-dismiss="offcanvas">
               <RouterLink class="nav-link" to="/user/dashboard">User Dashboard</RouterLink>
             </li>
-            <li v-if="useIdentityStore().identity.includes('User')" class="nav-item">
+            <li v-if="identity.includes('User')" class="nav-item" data-bs-dismiss="offcanvas">
               <RouterLink class="nav-link" to="/user/issuedbooks">Issued Books</RouterLink>
             </li>
-            <li v-if="useIdentityStore().identity.includes('User')" class="nav-item">
+            <li v-if="identity.includes('User')" class="nav-item" data-bs-dismiss="offcanvas">
               <RouterLink class="nav-link" to="/user/purchasedbooks">Purchased Books</RouterLink>
             </li>
-            <li v-if="useIdentityStore().identity.includes('User')" class="nav-item">
+            <li v-if="identity.includes('User')" class="nav-item" data-bs-dismiss="offcanvas">
               <RouterLink class="nav-link" to="/user/rating">Ratings</RouterLink>
             </li>
-            
-            <li v-if="!useIdentityStore().identity.includes('Unauthenticated')" class="nav-item">
-              <RouterLink id="logout" to="#logout" class="nav-link" @click="useModalStore().modalfunc(logout)" >
-                <i class="bi bi-box-arrow-right"></i>Logout
-              </RouterLink>
-            </li>
-            <li v-if="useIdentityStore().identity.includes('Unauthenticated')" class="nav-item">
-              <RouterLink id="login" to="#login" class="nav-link" @click="useModalStore().modalfunc(login)"  >Login</RouterLink>
-            </li>
-            <li v-if="useIdentityStore().identity.includes('Unauthenticated')" class="nav-item">
-              <RouterLink id="register" to="#register" class="nav-link" @click="useModalStore().modalfunc(register)" >Register</RouterLink>
-            </li>
 
-            <li class="nav-item">
-              <RouterLink class="nav-link" to="/policies">Policies</RouterLink>
-            </li>
-            <li class="nav-item">
-              <RouterLink class="nav-link" to="/random">
-                <i class="bi bi-shuffle"></i>Random
-              </RouterLink>
-            </li>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                Change theme
+            <li v-if="!identity.includes('Unauthenticated')" class="nav-item" data-bs-dismiss="offcanvas">
+              <a class="nav-link pointer-link" @click="useModalStore().modalfunc(logout)">
+                <i class="bi bi-box-arrow-right"></i>Logout
               </a>
-              <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#" @click="changetheme('dark')"><i class="bi bi-lightbulb"></i> Dark</a></li>
-                <li><a class="dropdown-item" href="#" @click="changetheme('light')"><i class="bi bi-lightbulb-fill"></i> Light</a></li>
-              </ul>
+            </li>
+            <li v-if="identity.includes('Unauthenticated')" class="nav-item" data-bs-dismiss="offcanvas">
+              <a class="nav-link pointer-link" @click="useModalStore().modalfunc(login)">Login</a>
+            </li>
+            <li v-if="identity.includes('Unauthenticated')" class="nav-item" data-bs-dismiss="offcanvas">
+              <a class="nav-link pointer-link" @click="useModalStore().modalfunc(register)">Register</a>
             </li>
           </ul>
-          <form class="d-flex">
-            <input class="form-control me-2" type="search" id="bybook" placeholder="Book Name">
-            <button id="searchbutton" class="btn btn-outline-dark" type="submit">Search</button>
-          </form>
-        </div>
 
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <button class="search-button" data-bs-toggle="modal" data-bs-target="#searchModal">
+                <i class="bi bi-search"></i> Search
+              </button>
+            </li>
+            <li class="nav-item" data-bs-dismiss="offcanvas">
+              <RouterLink class="nav-link" to="/policies">Policies</RouterLink>
+            </li>
+            <li class="nav-item" title="pick a random book" data-bs-dismiss="offcanvas">
+              <a class="nav-link pointer-link icon-link icon-link-hover" @click="random">
+                <i class="bi bi-shuffle"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <Theme></Theme>
+            </li>
+          </ul>
+
+        </div>
       </div>
     </div>
   </nav>
- 
-  <div v-if="useLoadingStore().loading" class="modal-backdrop fade show">
-    <div class="spinner-grow text-primary position-absolute top-50 start-50 translate-middle" style="width: 3rem; height: 3rem;" role="status">
-      <span class="visually-hidden">Loading...</span>
-    </div>
+  <Install></Install>
+  <Modal></Modal>
+  <Search></Search>
+  <div v-for="(value,key) in useAlertStore().alerts" :key="key">
+    <Alert :alert="value" :id="key"></Alert>
   </div>
+  <Spinner></Spinner>
 
-  <Alert :alerts="useAlertStore().alerts"></Alert>
-  <Modal :modal="useModalStore().modal"></Modal>
   <RouterView />
 </template>
+
+<style scoped>
+  .navbar {
+    background-color: var(--navbar-bg);
+  }
+
+  .navbar-brand i {
+    position: relative;
+    top: 0;
+    transition: top ease 0.5s;
+  }
+
+  .navbar-brand:hover i {
+    top: -5px;
+  }
+
+  .router-link-exact-active.nav-link {
+    color: var(--bs-navbar-active-color);
+  }
+
+  .router-link-exact-active.nav-link:hover {
+    color: var(--bs-navbar-active-color);
+  }
+
+  .search-button {
+    background: rgba(0, 0, 0, 0.1);
+    height: 38px;
+    border: 1px solid rgba(132, 124, 124, 0.4);
+    border-radius: .375rem
+  }
+
+  .search-button:hover {
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(109, 1, 125, 0.499) !important
+  }
+</style>

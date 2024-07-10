@@ -58,7 +58,9 @@ class Books(db.Model):
     content = db.Column(db.Text, nullable=False)
     noofcopies = db.Column(db.Integer, nullable=False)
     author = db.Column(db.String, nullable=False)
-    price = db.Column(db.Integer, nullable=False)
+    price = db.Column(
+        db.Float(precision=2, asdecimal=True, decimal_return_scale=2), nullable=False
+    )
     section_id = db.Column(db.Integer, db.ForeignKey("sections.id"), nullable=False)
     language = db.Column(db.String, nullable=False)
     storage = db.Column(db.String, nullable=False)
