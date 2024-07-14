@@ -1,8 +1,8 @@
 <script setup>
-    import { onMounted, ref, computed, h, watchEffect } from 'vue';
+    import { onMounted, ref, computed, h } from 'vue';
     import { fetchfunct, checkerror, checksuccess } from '../components/fetch.js'
     import Starrating from '../components/Starrating.vue';
-    import { useRouter, useRoute } from 'vue-router';
+    import { useRouter, useRoute, onBeforeRouteUpdate } from 'vue-router';
     import { useLoadingStore, useModalStore, useIdentityStore, useAlertStore } from '../stores/store';
 
     const router = useRouter()
@@ -25,7 +25,7 @@
             let total = 0
             for ( const i in count.value )
             {
-                total += count.value[ i ]
+                total += count.value[ i ] * i
             }
             return total / book.value.ratings.length
         }
@@ -33,36 +33,40 @@
 
     } )
 
-    async function loaddata ()
+    async function loaddata ( to = null, from = null )
     {
-        if ( !isNaN( props.id ) )
+        if ( ( !to ) || ( to.params.id != from.params.id ) )
         {
-            useLoadingStore().loading = true
-            let r = await fetchfunct( backurl + `book/${ props.id }` )
-            if ( r.ok )
+            const id = to ? to.params.id : props.id
+            if ( !isNaN( id ) )
             {
-                r = await r.json()
-                book.value = r
+                useLoadingStore().loading = true
+                let r = await fetchfunct( backurl + `book/${ id }` )
+                if ( r.ok )
+                {
+                    r = await r.json()
+                    book.value = r
+                }
+                else
+                {
+                    router.go( -1 )
+                    checkerror( r )
+                }
+                // stopping the loading screen
+                useLoadingStore().loading = false
             }
             else
             {
-                router.go( -1 )
-                checkerror( r )
-            }
-            // stopping the loading screen
-            useLoadingStore().loading = false
-        }
-        else
-        {
-            router.replace( {
-                name: "Notfound",
-                params: { pathMatch: route.path.substring( 1 ).split( '/' ) }
-            } )
+                router.replace( {
+                    name: "Notfound",
+                    params: { pathMatch: route.path.substring( 1 ).split( '/' ) }
+                } )
 
+            }
         }
     }
 
-    watchEffect( loaddata )
+    onBeforeRouteUpdate( loaddata )
 
     onMounted( loaddata )
 
@@ -116,15 +120,9 @@
 
         useLoadingStore().loading = true
 
-        let r = await fetchfunct( backurl + `book/purchase/${ props.id }`, {
-            headers: {
-                "Authentication-Token": localStorage.getItem(
-                    "Authentication-Token" )
-            }
-        } )
+        let r = await fetchfunct( backurl + `user/book/purchase/${ props.id }` )
         if ( r.ok )
         {
-            r = await r.json()
             router.push( "/user/purchase" )
             checksuccess( r )
         }
@@ -145,15 +143,9 @@
 
         useLoadingStore().loading = true
 
-        let r = await fetchfunct( backurl + `book/issue/${ props.id }`, {
-            headers: {
-                "Authentication-Token": localStorage.getItem(
-                    "Authentication-Token" )
-            }
-        } )
+        let r = await fetchfunct( backurl + `user/book/issue/${ props.id }` )
         if ( r.ok )
         {
-            r = await r.json()
             router.push( "/user/issue" )
             checksuccess( r )
         }
@@ -168,10 +160,10 @@
 </script>
 <template>
     <div class="row column-gap-5">
-        <div class="col me-2 ms-2" style="max-width:20%">
+        <div class="col me-2 ms-2 thumbnail-container" style="max-width:30%">
             <img :src="book.thumbnail" class="img-thumbnail h-100">
         </div>
-        <div class="col ms-2">
+        <div class="col-lg ms-2 mt-2">
             <div class="row">
                 <h1>{{book.book_name}}</h1>
             </div>
@@ -206,7 +198,7 @@
 
     <h1 class="p-2">Reviews</h1>
     <div class="row p-2" v-if="book.ratings.length>0">
-        <div class="col-4">
+        <div class="col-lg-4">
 
             <Starrating :rating="average"></Starrating> average based on {{book.ratings.length}} ratings.
 
@@ -224,11 +216,17 @@
 
         </div>
 
-        <div class="col">
+        <div class="col-lg">
             <div v-for="rating in book.ratings">
-                <div v-if="rating.feedback" class="row">
-                    <div class="row">{{rating.username}}</div>
-                    <div class="row">{{rating.rating_date}}</div>
+                <div v-if="rating.feedback" class="row ms-lg-5 mt-4">
+                    <div class="row justify-content-between">
+                        <div class="col-auto text-start" title="username">
+                            {{rating.username}}
+                        </div>
+                        <div class="col-auto text-muted text-end" title="rating date">
+                            {{rating.rating_date}}
+                        </div>
+                    </div>
                     <div class="row">
                         <Starrating :rating="rating.rating"></Starrating>
                     </div>
@@ -243,3 +241,10 @@
     </div>
     <p v-else class="p-2 mb-3 text-muted">There is no ratings yet.</p>
 </template>
+<style scoped>
+    @media (max-width: 1100px) {
+        .thumbnail-container {
+            max-width: 80% !important;
+        }
+    }
+</style>

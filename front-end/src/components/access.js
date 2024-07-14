@@ -79,11 +79,12 @@ async function login_or_register ( values, { resetForm } )
     {
         //getting the user role
         let data = await response.json()
-        let r = await fetchfunct( backurl + "user/role", { headers: { "Authentication-Token": data.response.user.authentication_token } } )
+        localStorage.setItem( "Authentication-Token", data.response.user.authentication_token )
+
+        let r = await fetchfunct( backurl + "user/role" )
         if ( r.ok )
         {
             useIdentityStore().identity = await r.json()
-            localStorage.setItem( "Authentication-Token", data.response.user.authentication_token )
             localStorage.setItem( "Identity", JSON.stringify( useIdentityStore().identity ) )
             useAlertStore().alertpush( [ { msg: 'You have successfully logged in!', type: 'alert-success' } ] )
         }
@@ -113,7 +114,7 @@ async function logoutfunc ()
     bootstrap.Modal.getInstance( document.getElementById( useModalStore().modal.id ) ).hide()
     // starting the loading screen
     useLoadingStore().loading = true
-    let r = await fetchfunct( backurl + "logout", { headers: { "Authentication-Token": localStorage.getItem( "Authentication-Token" ) } } )
+    let r = await fetchfunct( backurl + "logout" )
     if ( r.ok || r.status == 401 )
     {   // logout is successfully or the authentication token has expired
         localStorage.removeItem( 'Authentication-Token' )

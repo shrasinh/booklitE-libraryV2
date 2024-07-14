@@ -12,12 +12,7 @@
         if ( Object.keys( useBookcreateStore().languages ).length == 0 )
         {
             useLoadingStore().loading = true
-            let r = await fetchfunct( backurl + "admin/books", {
-                headers: {
-                    "Authentication-Token": localStorage.getItem(
-                        "Authentication-Token" )
-                }
-            } )
+            let r = await fetchfunct( backurl + "admin/books" )
             if ( r.ok )
             {
                 r = await r.json()
@@ -103,11 +98,7 @@
         )
 
         let r = await fetchfunct( backurl + "admin/books/create", {
-            method: "POST", body: bodyContent,
-            headers: {
-                "Authentication-Token": localStorage.getItem(
-                    "Authentication-Token" )
-            }
+            method: "POST", body: bodyContent
         } )
         if ( r.ok )
         {
@@ -125,45 +116,44 @@
 </script>
 <template>
     <h1 class="mb-3 p-2">Book Addition</h1>
-    <br>
     <Form :validation-schema="book_schema" @submit="submit">
 
-        <div class="row mb-3 mx-auto">
-            <div class="col-5 me-auto">
+        <div class="row mb-lg-3 mx-auto">
+            <div class="col-lg-5 me-lg-auto">
                 <div class="row">
                     <label class="form-label">Book name</label>
                 </div>
-                <div class="row form-element mx-auto">
+                <div class="row form-element mx-auto mb-3 mb-lg-0">
                     <Field class='form-control' name="book_name" placeholder='Book name'></Field>
                     <ErrorMessage class="form-text" name="book_name"></ErrorMessage>
                 </div>
             </div>
-            <div class="col-5 ms-auto">
+            <div class="col-lg-5 ms-lg-auto">
                 <div class="row">
                     <label class="form-label">Author name</label>
                 </div>
-                <div class="row form-element mx-auto">
+                <div class="row form-element mx-auto mb-3 mb-lg-0">
                     <Field class='form-control' name="author_name" placeholder='Author name'></Field>
                     <ErrorMessage class="form-text" name="author_name"></ErrorMessage>
                 </div>
             </div>
         </div>
 
-        <div class="row mb-3 mx-auto">
-            <div class="col-5 me-auto">
+        <div class="row mb-lg-3 mx-auto">
+            <div class="col-lg-5 me-lg-auto">
                 <div class="row">
                     <label class="form-label">Book price(in Rs.)</label>
                 </div>
-                <div class="row form-element mx-auto">
+                <div class="row form-element mx-auto mb-3 mb-lg-0">
                     <Field class='form-control' name="price" placeholder='Book price' type="number" min="0"></Field>
                     <ErrorMessage class="form-text" name="price"></ErrorMessage>
                 </div>
             </div>
-            <div class="col-5 ms-auto">
+            <div class="col-lg-5 ms-lg-auto">
                 <div class="row">
                     <label class="form-label">Number of Copies Available</label>
                 </div>
-                <div class="row form-element mx-auto">
+                <div class="row form-element mx-auto mb-3 mb-lg-0">
                     <Field class='form-control' name="no_of_copies_available" placeholder='Number of copies'
                         type="number" min="0">
                     </Field>
@@ -172,12 +162,12 @@
             </div>
         </div>
 
-        <div class="row mb-3 mx-auto">
-            <div class="col-5 me-auto">
+        <div class="row mb-lg-3 mx-auto">
+            <div class="col-lg-5 me-lg-auto">
                 <div class="row">
                     <label class="form-label">Associated Section</label>
                 </div>
-                <div class="row form-element mx-auto">
+                <div class="row form-element mx-auto mb-3 mb-lg-0">
                     <Field class="form-select" name="section_id" as="select">
                         <option value="" disabled>Select a section</option>
                         <option v-for="section in useBookcreateStore().sections" :key="section.section_id"
@@ -188,11 +178,11 @@
                     <ErrorMessage class="form-text" name="section_id"></ErrorMessage>
                 </div>
             </div>
-            <div class="col-5 ms-auto">
+            <div class="col-lg-5 ms-lg-auto">
                 <div class="row">
                     <label class="form-label">Language</label>
                 </div>
-                <div class="row form-element mx-auto">
+                <div class="row form-element mx-auto mb-3 mb-lg-0">
                     <Field class="form-select" name="language" as="select">
                         <option value="" disabled>Select language</option>
                         <option v-for="(language_id,language_name) in useBookcreateStore().languages" :key="language_id"
@@ -205,33 +195,33 @@
             </div>
         </div>
 
-        <div class="row mb-3 mx-auto">
-            <div class="col-5 me-auto">
+        <div class="row mb-lg-3 mx-auto">
+            <div class="col-lg-5 me-lg-auto">
                 <div class="row">
                     <label class="form-label">Book description</label>
                 </div>
-                <div class="row form-element mx-auto">
+                <div class="row form-element mx-auto mb-3 mb-lg-0">
                     <Field class='form-control' name="book_description" placeholder='Book description' as="Textarea"
                         cols="30" rows="10"></Field>
                     <ErrorMessage class="form-text" name="book_description"></ErrorMessage>
                 </div>
             </div>
-            <div class="col-5 ms-auto">
-                <div class="row mb-3">
+            <div class="col-lg-5 ms-lg-auto">
+                <div class="row mb-lg-3">
                     <div class="row">
                         <label class="form-label">Book pdf</label>
                     </div>
-                    <div class="row form-element mx-auto">
+                    <div class="row form-element mx-auto mb-3 mb-lg-0">
                         <Field name="book_pdf" class='form-control' type="file" accept="application/pdf">
                         </Field>
                         <ErrorMessage class="form-text" name="book_pdf"></ErrorMessage>
                     </div>
                 </div>
-                <div class="row mb-3">
+                <div class="row mb-lg-3">
                     <div class="row ">
                         <label class="form-label">Book thumbnail</label>
                     </div>
-                    <div class="row form-element mx-auto">
+                    <div class="row form-element mx-auto mb-3 mb-lg-0">
                         <Field name="thumbnail" class='form-control' type="file"
                             accept="image/png, image/jpg, image/jpeg">
                         </Field>
@@ -242,7 +232,7 @@
         </div>
 
         <div class='row mb-3'>
-            <div class="col-auto mx-auto">
+            <div class="col-auto mx-lg-auto ms-3">
                 <button type="submit" class='btn btn-outline-primary'>Submit</button>
             </div>
         </div>

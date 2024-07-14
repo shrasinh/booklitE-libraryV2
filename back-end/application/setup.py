@@ -34,6 +34,11 @@ app.config["SECURITY_LOGOUT_METHODS"] = None
 app.config["SECURITY_TOKEN_MAX_AGE"] = 60 * 60 * 24
 app.config["WTF_CSRF_ENABLED"] = False
 
+app.config["MAIL_SERVER"] = os.getenv("MAIL_SERVER")
+app.config["MAIL_PORT"] = os.getenv("MAIL_PORT")
+app.config["MAIL_USERNAME"] = os.getenv("MAIL_USERNAME")
+app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
+
 
 # disabling sending of cookie
 class CustomSessionInterface(SecureCookieSessionInterface):
@@ -77,7 +82,7 @@ app.security = Security(app, user_datastore)
 with app.app_context():
     db.init_app(app)  # database integration to the application
     db.create_all()  # create the tables if not created
-    if not app.security.datastore.find_user(email="librarian@gmail.com"):
+    if not app.security.datastore.find_user(email=os.environ.get("LIBRARIAN_EMAIL")):
         row1 = Roles(name="User", description="To get user priviliges")
         row2 = Roles(name="Member", description="To get the member privileges")
         row3 = Roles(name="Admin", description="To get admin priviliges")
@@ -86,7 +91,7 @@ with app.app_context():
         db.session.add(row3)
         app.security.datastore.create_user(
             username="librarian",
-            email="librarian@gmail.com",
+            email=os.environ.get("LIBRARIAN_EMAIL"),
             password=hash_password("pass#word12"),
             roles=[row3],
         )

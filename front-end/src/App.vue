@@ -8,12 +8,13 @@
   import Spinner from './components/Spinner.vue'
   import Theme from './components/Theme.vue'
   import Search from './components/Search.vue'
-  import { useModalStore, useIdentityStore, useAlertStore, useSearchStore } from './stores/store.js'
+  import { fetchfunct, checkerror } from './components/fetch.js'
+  import { useModalStore, useIdentityStore, useAlertStore, useSearchStore, useLoadingStore } from './stores/store.js'
   import router from './router/index.js'
   import Install from './components/Install.vue'
 
   const { identity } = storeToRefs( useIdentityStore() )
-  const { book_ids } = storeToRefs( useSearchStore() )
+  const { book_ids, sections } = storeToRefs( useSearchStore() )
 
   onMounted( () =>
   {
@@ -34,17 +35,35 @@
       root.style.setProperty( '--navbar-bg', '#5e6eed' )
   } )
 
-  function random ()
+  async function random ()
   {
-    if ( book_ids.value.length > 0 )
+    if ( book_ids.value.length == 0 )
+    {
+      useLoadingStore().loading = true
+      let r = await fetchfunct( backurl )
+      if ( r.ok )
+      {
+        r = await r.json()
+        sections.value = r.sections
+        book_ids.value = r.book_ids
+      }
+      else
+      {
+        checkerror( r )
+      }
+      // stopping the loading screen
+      useLoadingStore().loading = false
+    }
+    if ( book_ids.value.length == 0 )
+    {
+      useAlertStore().alertpush( [ { msg: 'No books are present in the library yet!', type: 'alert-danger' } ] )
+    }
+    else
     {
       const id = book_ids.value[ Math.floor( Math.random() * book_ids.value.length ) ]
       router.push( `/book/${ id }` )
     }
-    else
-    {
-      useAlertStore().alertpush( [ { msg: 'No books are present in the library yet!', type: 'alert-danger' } ] )
-    }
+
   }
 
 </script>
@@ -74,9 +93,6 @@
 
         <div class="offcanvas-body">
           <ul class="navbar-nav me-auto">
-            <li v-if="identity.includes('User')" class="nav-item" data-bs-dismiss="offcanvas">
-              <RouterLink class="nav-link" to="/account">Account</RouterLink>
-            </li>
 
             <li v-if="identity.includes('Admin')" class="nav-item" data-bs-dismiss="offcanvas">
               <RouterLink class="nav-link" to="/admin/dashboard">Dashboard</RouterLink>
@@ -92,13 +108,13 @@
             </li>
 
             <li v-if="identity.includes('User')" class="nav-item" data-bs-dismiss="offcanvas">
-              <RouterLink class="nav-link" to="/user/dashboard">User Dashboard</RouterLink>
+              <RouterLink class="nav-link" to="/user/dashboard">Dashboard</RouterLink>
             </li>
             <li v-if="identity.includes('User')" class="nav-item" data-bs-dismiss="offcanvas">
-              <RouterLink class="nav-link" to="/user/issuedbooks">Issued Books</RouterLink>
+              <RouterLink class="nav-link" to="/user/issue">Issued Books</RouterLink>
             </li>
             <li v-if="identity.includes('User')" class="nav-item" data-bs-dismiss="offcanvas">
-              <RouterLink class="nav-link" to="/user/purchasedbooks">Purchased Books</RouterLink>
+              <RouterLink class="nav-link" to="/user/purchase">Purchased Books</RouterLink>
             </li>
             <li v-if="identity.includes('User')" class="nav-item" data-bs-dismiss="offcanvas">
               <RouterLink class="nav-link" to="/user/rating">Ratings</RouterLink>

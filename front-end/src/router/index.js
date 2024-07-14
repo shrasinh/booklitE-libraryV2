@@ -68,6 +68,34 @@ const router = createRouter( {
       props: true
     },
     {
+      path: '/user/dashboard',
+      component: () => import( './user/Dashboard.vue' ),
+      meta: {
+        title: "User dashboard", requiresAuth: true, auth_role: "User"
+      },
+    },
+    {
+      path: '/user/issue',
+      component: () => import( './user/Issue.vue' ),
+      meta: {
+        title: "Issue details", requiresAuth: true, auth_role: "User"
+      },
+    },
+    {
+      path: '/user/purchase',
+      component: () => import( './user/Purchase.vue' ),
+      meta: {
+        title: "Purchase details", requiresAuth: true, auth_role: "User"
+      },
+    },
+    {
+      path: '/user/rating',
+      component: () => import( './user/Rating.vue' ),
+      meta: {
+        title: "Rating details", requiresAuth: true, auth_role: "User"
+      },
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'Notfound',
       component: Notfound

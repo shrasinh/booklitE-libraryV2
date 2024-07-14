@@ -20,12 +20,20 @@
     import * as bootstrap from "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.esm.min.js"
     window.bootstrap = bootstrap
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/tween.js"></script>
+  <script src="https://www.gstatic.com/charts/loader.js"></script>
+  <script src="https://documentservices.adobe.com/view-sdk/viewer.js"></script>
+  <script src="https://mozilla.github.io/pdf.js/build/pdf.mjs" type="module"></script>
+  <script type="module">
+    import lottieWeb from 'https://cdn.skypack.dev/lottie-web'
+    window.lottieWeb = lottieWeb
+  </script>
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta charset="UTF-8">
 </head>
 
-<body style="font-family: Verdana,Tahoma,sans-serif;overflow-x: hidden!important;">
+<body style="font-family: Verdana,Tahoma,sans-serif;" class="overflow-x-hidden">
   <div id="app"></div>
   <script type="module" src="/src/main.js"></script>
 </body>

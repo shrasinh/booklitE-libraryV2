@@ -67,11 +67,7 @@
         }
 
         let r = await fetchfunct( backurl + `admin/users/${ user.value.user_id }`, {
-            method: "PUT", body: bodyContent,
-            headers: {
-                "Authentication-Token": localStorage.getItem(
-                    "Authentication-Token" )
-            }
+            method: "PUT", body: bodyContent
         } )
         if ( r.ok )
         {
@@ -105,12 +101,12 @@
             class="bi bi-pencil-square pointer-link" :style="(!editing)&&{'color':'gray'}"></i>
     </h4>
     <div class="row mb-3">
-        <div class="col">Currently issued books</div>
+        <div class="col-lg">Currently issued books</div>
         <div v-if="user.currently_issued_books.length==0" class="col text-muted">No books are currently
             used by
             the user.</div>
-        <div v-else class="col">
-            <table class="table table-bordered text-center">
+        <div v-else class="col-md">
+            <table class="table table-bordered text-center table-responsive">
                 <thead>
                     <tr>
                         <th scope="col">Book name</th>
@@ -128,8 +124,8 @@
     </div>
 
     <div class="row mb-3" v-if="editing&&user.currently_issued_books.length!=Object.keys(books).length">
-        <div class="col">Issue books to the user</div>
-        <div class="col">
+        <div class="col-md">Issue books to the user</div>
+        <div class="col-md">
             <div class="dropdown-center">
                 <button class="edit" type="button" data-bs-toggle="dropdown">
                     <span :class="['text', issuecheck.length==0&&'text-muted']">{{ issue }}</span><span
@@ -152,8 +148,8 @@
 
 
     <div class="row mb-3" v-if="editing&&!(user.currently_issued_books==0)">
-        <div class="col">Revoke books to the user</div>
-        <div class="col">
+        <div class="col-md">Revoke books to the user</div>
+        <div class="col-md">
             <div class="dropdown-center">
                 <button class="edit" type="button" data-bs-toggle="dropdown">
                     <span :class="['text', revokecheck.length==0&&'text-muted']">{{ revoke }}</span><span

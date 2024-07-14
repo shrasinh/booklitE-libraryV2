@@ -33,6 +33,8 @@ class Users(db.Model, UserMixin):
     current_login_ip = db.Column(db.String)
     login_count = db.Column(db.Integer)
     fs_uniquifier = db.Column(db.String(64), unique=True, nullable=False)
+    membership_date = db.Column(db.DateTime, nullable=True)
+    daily_remainders = db.Column(db.Boolean, default=0, nullable=False)
     roles = db.relationship("Roles", secondary="UsersRoles", back_populates="users")
     rating = db.relationship("Ratings", cascade="all,delete", back_populates="user")
     issue = db.relationship("IssuedBook", cascade="all,delete", back_populates="user")
@@ -105,7 +107,9 @@ class IssuedBook(db.Model):
 class PurchasedBook(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     purchase_date = db.Column(db.DateTime, default=datetime.now(), nullable=False)
-    price = db.Column(db.Integer, nullable=False)
+    price = db.Column(
+        db.Float(precision=2, asdecimal=True, decimal_return_scale=2), nullable=False
+    )
     book_id = db.Column(db.Integer, db.ForeignKey("books.id"), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     user = db.relationship("Users", uselist=False, back_populates="purchase")

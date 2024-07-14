@@ -14,17 +14,12 @@
     onMounted( async () =>
     {
         useLoadingStore().loading = true
-        let r = await fetchfunct( backurl + "admin/books", {
-            headers: {
-                "Authentication-Token": localStorage.getItem(
-                    "Authentication-Token" )
-            }
-        } )
+        let r = await fetchfunct( backurl + "admin/books" )
         if ( r.ok )
         {
             r = await r.json()
             books.value = r.books
-            useBookdetailsStore().books = r.books
+            useBookdetailsStore().books = { ...r.books }
             sections.value = r.sections
             languages.value = r.languages
         }
@@ -66,16 +61,13 @@
             "book_ids", checked.value,
         )
         let r = await fetchfunct( backurl + "admin/books/delete", {
-            method: "DELETE", body: bodyContent,
-            headers: {
-                "Authentication-Token": localStorage.getItem(
-                    "Authentication-Token" )
-            }
+            method: "DELETE", body: bodyContent
         } )
         if ( r.ok )
-        {   //removing the deleted book and resetting the checked array
+        {   //removing the deleted books and resetting the checked array
             books.value = books.value.filter( b => !checked.value.includes( b.book_id ) )
             checked.value.length = 0
+            useBookdetailsStore().books = { ...books.value }
 
             //providing feedback
             r = await r.json()
@@ -99,7 +91,7 @@
         <div class="col-auto">
             <h1 class="mb-3 p-2">All Books</h1>
         </div>
-        <div class="col-auto">
+        <div class="col-auto p-4">
             <input class="form-control search-icon" placeholder="Search for a book..." v-model="search">
         </div>
     </div>
@@ -108,37 +100,58 @@
         No book added yet.</p>
 
     <div v-else>
-
-        <div class="row mx-auto">
-            <div class="col-auto"><i @click="deletebookchecking" title="Delete books" class="bi bi-trash3"
-                    :class="(checked.length!=0)&&'pointer-link'" :style="(checked.length==0)&&{'color':'gray'}"></i>
-            </div>
-            <div class="col row">
-                <div class="col-1"><strong>Book ID</strong></div>
-                <div class="col-2"><strong>Book Name</strong></div>
-                <div class="col-2"><strong>Available copies</strong></div>
-                <div class="col-2"><strong>Number of current issue</strong></div>
-                <div class="col-2"><strong>Number of time issued</strong></div>
-                <div class="col-2"><strong>Number of time purchased</strong></div>
+        <div class="row mx-auto mb-3 text-center">
+            <div class="col-auto">
+                <button class="btn btn-outline-danger" @click="deletebookchecking" title="Delete books"
+                    v-show="checked.length!=0"><i class="bi bi-trash3"></i> Delete
+                </button>
             </div>
         </div>
 
+
         <div class="accordion" id="books">
-            <div v-for="book in books">
+            <div v-for="book in books" :key="book.book_id">
                 <div class="accordion-item"
                     v-if="search.length==0|book.book_name.toLowerCase().includes(search.toLowerCase())">
 
-                    <div class="accordion-header row align-items-center mx-auto">
-                        <div class="col-auto"><input type="checkbox" :value="book.book_id" v-model="checked"
-                                class="form-check-input" /></div>
-                        <div class="accordion-button collapsed col row" data-bs-toggle="collapse"
-                            :data-bs-target="'#collapse'+book.book_id">
-                            <div class="col-1">{{book.book_id}}</div>
-                            <div class="col-2 break-word">{{book.book_name}}</div>
-                            <div class="col-2">{{book.no_of_copies_available}}</div>
-                            <div class="col-2">{{book.currently_issued_by.length}}</div>
-                            <div class="col-2">{{book.no_of_issues}}</div>
-                            <div class="col-2">{{book.no_of_purchase}}</div>
+                    <div class="accordion-header">
+                        <div class="row align-items-center">
+                            <div class="col-auto ms-4"><input type="checkbox" :value="book.book_id" v-model="checked"
+                                    class="form-check-input" title="delete section" />
+                            </div>
+                            <div class="col">
+                                <div class="accordion-button collapsed row" data-bs-toggle="collapse"
+                                    :data-bs-target="'#collapse'+book.book_id">
+                                    <div class="col-lg-2 row">
+                                        <img :src="book.thumbnail" class="img-thumbnail"
+                                            style="max-height:200px;max-width:200px">
+                                    </div>
+                                    <div class="col-lg row">
+                                        <div class="row">
+                                            <span><code>Book Id: </code>
+                                                {{book.book_id}}
+                                            </span>
+                                        </div>
+                                        <div class="row">
+                                            <span><code>Book Name: </code>
+                                                {{book.book_name}}
+                                            </span>
+                                        </div>
+                                        <div class="row">
+                                            <span><code>Number of copies available: </code>{{book.no_of_copies_available}}</span>
+                                        </div>
+                                        <div class="row">
+                                            <span><code>Number of current issues: </code>{{book.currently_issued_by.length}}</span>
+                                        </div>
+                                        <div class="row">
+                                            <span><code>Total number of issues: </code>{{book.no_of_issues}}</span>
+                                        </div>
+                                        <div class="row">
+                                            <span><code>Total number of purchases: </code>{{book.no_of_purchase}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -153,8 +166,9 @@
         </div>
     </div>
 
-    <RouterLink id="bookcreate" to="/admin/books/create" style="z-index:3" class="position-fixed bottom-0 end-0">
-        <button class="btn btn-primary rounded-pill" title="Create a new book"><i class="bi bi-plus-lg"></i></button>
+    <RouterLink id="bookcreate" to="/admin/books/create" style="z-index:3;bottom:5%;right:5%" class="
+        position-fixed">
+        <button class=" btn btn-primary rounded-pill" title="Create a new book"><i class="bi bi-plus-lg"></i></button>
     </RouterLink>
 
 </template>

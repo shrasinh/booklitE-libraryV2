@@ -3,11 +3,12 @@
     import { fetchfunct, checkerror, checksuccess } from '../../components/fetch.js'
     import Bookview from '../../components/Bookview.vue'
     import { Form, Field, ErrorMessage } from 'vee-validate'
-    import { useLoadingStore, useBookcreateStore } from '../../stores/store.js'
+    import { useLoadingStore, useBookcreateStore, useBookdetailsStore } from '../../stores/store.js'
     import { object, string, number } from "yup"
 
     const props = defineProps( [ 'book' ] )
-    const book = ref( props.book )
+    const original = ref( props.book )
+    const book = ref( { ...original.value } )
     const editing = ref( false )
 
     const section_name = computed( () =>
@@ -69,18 +70,26 @@
 
         let r = await fetchfunct( backurl + `admin/books/edit/${ book.value.book_id }`, {
             method: "PUT", body: bodyContent,
-            headers: {
-                "Authentication-Token": localStorage.getItem(
-                    "Authentication-Token" )
-            }
         } )
         if ( r.ok )
         {
             editing.value = false
+
+            for ( const i in useBookdetailsStore().books )
+            {
+                if ( useBookdetailsStore().books[ i ].book_id == book.value.book_id )
+                {
+                    useBookdetailsStore().books[ i ] = { ...book.value }
+                }
+                break
+            }
+            original.value = { ...book.value }//changing the parent data
+
             checksuccess( r )
         }
         else
         {
+            book.value = { ...original.value }// resetting the child data to the original data
             checkerror( r )
         }
         // stopping the loading screen
@@ -93,14 +102,14 @@
             class="bi bi-pencil-square pointer-link" :style="(!editing)&&{'color':'gray'}"></i>
     </h4>
     <div class="row mb-3">
-        <div class="col">Currently issued by</div>
+        <div class="col-md">Currently issued by</div>
         <div v-if="book.currently_issued_by.length==0" class="col text-muted">The books is not currently issued by
             anyone.</div>
-        <div v-else class="col">
-            <table class="table table-bordered text-center">
+        <div v-else class="col-md">
+            <table class="table table-bordered text-center table-responsive">
                 <thead>
                     <tr>
-                        <th scope="col">Username</th>
+                        <th scope="col-md">Username</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -112,65 +121,65 @@
         </div>
     </div>
     <div class="row mb-3">
-        <div class="col">Book view</div>
-        <div class="col">
+        <div class="col-md">Book view</div>
+        <div class="col-md">
             <Bookview :language="useBookcreateStore().languages[book.language ]" :url="book.book_storage"
-                :book_name="book.book_name" :class="'pointer-link'" :id="'book'+book.book_id"></Bookview>
+                :book_name="book.book_name" :icon="false" :id="'book'+book.book_id"></Bookview>
         </div>
     </div>
     <Form :validation-schema="book_schema" @submit="submit">
         <div class="row mb-3 form-element">
-            <div class="col">Name</div>
-            <div class="col" v-if="editing">
+            <div class="col-md">Name</div>
+            <div class="col-md" v-if="editing">
                 <Field v-model="book.book_name" class='form-control' name="book_name" placeholder='book name'></Field>
                 <ErrorMessage class="form-text" name="book_name"></ErrorMessage>
             </div>
-            <div v-else class="col">{{book.book_name}}</div>
+            <div v-else class="col-md">{{book.book_name}}</div>
         </div>
 
 
         <div class="row mb-3 form-element">
-            <div class="col">Description</div>
-            <div class="col" v-if="editing">
+            <div class="col-md-6">Description</div>
+            <div class="col-md-6" v-if="editing">
                 <Field v-model="book.description" class='form-control' name="book_description"
                     placeholder='Book description' as="Textarea" cols="30" rows="10"></Field>
                 <ErrorMessage class="form-text" name="book_description"></ErrorMessage>
             </div>
-            <div v-else class="col">{{book.description}}</div>
+            <div v-else class="col-md-6 break-word">{{book.description}}</div>
         </div>
 
         <div class="row mb-3 form-element">
-            <div class="col">Author name</div>
-            <div class="col" v-if="editing">
+            <div class="col-md">Author name</div>
+            <div class="col-md" v-if="editing">
                 <Field v-model="book.author" class='form-control' name="author_name" placeholder='Author name'>
                 </Field>
                 <ErrorMessage class="form-text" name="author_name"></ErrorMessage>
             </div>
-            <div v-else class="col">{{book.author}}</div>
+            <div v-else class="col-md">{{book.author}}</div>
         </div>
 
         <div class="row mb-3 form-element">
-            <div class="col">Price(in Rs.)</div>
-            <div class="col" v-if="editing">
+            <div class="col-md">Price(in Rs.)</div>
+            <div class="col-md" v-if="editing">
                 <Field v-model="book.price" class='form-control' name="price" placeholder='Book price' type="number"
                     min="0"></Field>
                 <ErrorMessage class="form-text" name="price"></ErrorMessage>
             </div>
-            <div v-else class="col">{{book.price }}</div>
+            <div v-else class="col-md">{{book.price }}</div>
         </div>
         <div class="row mb-3 form-element">
-            <div class="col">Number of Books Available</div>
-            <div class="col" v-if="editing">
+            <div class="col-md">Number of Books Available</div>
+            <div class="col-md" v-if="editing">
                 <Field v-model="book.no_of_copies_available" class='form-control' name="no_of_copies_available"
                     placeholder='Number of copies' type="number" min="0">
                 </Field>
                 <ErrorMessage class="form-text" name="no_of_copies_available"></ErrorMessage>
             </div>
-            <div v-else class="col">{{book.no_of_copies_available}}</div>
+            <div v-else class="col-md">{{book.no_of_copies_available}}</div>
         </div>
         <div class="row mb-3 form-element">
-            <div class="col">Associated Section</div>
-            <div class="col" v-if="editing">
+            <div class="col-md">Associated Section</div>
+            <div class="col-md" v-if="editing">
                 <Field v-model="book.section.section_id" class="form-select" name="section_id" as="select">
                     <option value="" disabled>Select a section</option>
                     <option v-for="section in useBookcreateStore().sections" :key="section.section_id"
@@ -180,11 +189,11 @@
                 </Field>
                 <ErrorMessage class="form-text" name="section_id"></ErrorMessage>
             </div>
-            <div v-else class="col">{{section_name}}</div>
+            <div v-else class="col-md">{{section_name}}</div>
         </div>
         <div class="row mb-3 form-element">
-            <div class="col">Language</div>
-            <div class="col" v-if="editing">
+            <div class="col-md">Language</div>
+            <div class="col-md" v-if="editing">
                 <Field v-model="book.language" class="form-select" name="language" as="select">
                     <option value="" disabled>Select language</option>
                     <option v-for="(language_id,language_name) in useBookcreateStore().languages" :key="language_id"
@@ -193,7 +202,7 @@
                     </option>
                 </Field>
             </div>
-            <div v-else class="col">{{book.language}}</div>
+            <div v-else class="col-md">{{book.language}}</div>
         </div>
 
         <div class='row mb-3'>

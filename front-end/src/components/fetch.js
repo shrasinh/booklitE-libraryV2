@@ -2,7 +2,24 @@ import { useAlertStore } from '../stores/store.js'
 
 export async function fetchfunct ( url, options = { headers: {} } )
 {
-    options.headers[ "Accept" ] = "application/json"
+    if ( options.headers )
+    {
+        options.headers[ "Authentication-Token" ] = localStorage.getItem(
+            "Authentication-Token" )
+    }
+    else
+    {
+        options[ "headers" ] = {
+            "Authentication-Token": localStorage.getItem(
+                "Authentication-Token" )
+        }
+
+    }
+
+    if ( !options.headers[ "Accept" ] )
+    {
+        options.headers[ "Accept" ] = "application/json"
+    }
     return fetch( url, options ).catch( () => "Failed to fetch. Network error occured." )
 }
 

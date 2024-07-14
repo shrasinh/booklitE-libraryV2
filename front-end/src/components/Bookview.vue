@@ -1,8 +1,7 @@
 <script setup>
-    import { onBeforeMount, onMounted, ref } from 'vue'
-    import lottieWeb from 'https://cdn.skypack.dev/lottie-web'
+    import { onMounted, ref } from 'vue'
 
-    const props = defineProps( [ 'language', 'url', 'book_name', 'class', 'id' ] )
+    const props = defineProps( [ 'language', 'url', 'book_name', 'id', 'icon' ] )
 
     const next_state = ref( "start" )
     const animation = ref( null )
@@ -135,31 +134,6 @@
         } );
     }
 
-    onBeforeMount( () =>
-    {
-        // load the required scripts 
-        if ( !document.getElementById( 'pdfviewscript' ) )
-        {
-            let script = document.createElement( 'script' )
-            script.src = "https://documentservices.adobe.com/view-sdk/viewer.js"
-            script.async = false
-            script.id = "pdfviewscript"
-            document.head.appendChild( script )
-
-        }
-        if ( !document.getElementById( 'pdfreaderscript' ) )
-        {
-            let script = document.createElement( 'script' )
-            script.src = "https://mozilla.github.io/pdf.js/build/pdf.mjs"
-            script.type = "module"
-            script.async = false
-            script.id = "pdfreaderscript"
-            document.head.appendChild( script )
-        }
-
-    } )
-
-
     onMounted( () =>
     {
 
@@ -194,7 +168,12 @@
 </script>
 
 <template>
-    <a :class='class' @click="viewFile">View book</a>
+    <div @click="viewFile">
+        <span v-if="icon">
+            <button class="btn btn-outline-primary"><i class="bi bi-eye"></i> View</button>
+        </span>
+        <span v-else><a class="pointer-link">View book</a></span>
+    </div>
     <div class="adobe-dc-view" :id="id" style="position:absolute;z-index:2000;"></div>
     <div class="audio-player-container">
         <button class="play-icon" ref="playIconContainer" title="Listen to text to speech version of the pdf"

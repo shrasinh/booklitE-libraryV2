@@ -2,7 +2,7 @@
     defineProps( [ 'rating' ] )
 </script>
 <template>
-    <div class="Stars" :style="{'--rating': rating}" :title="rating+' stars'"></div>
+    <div class="Stars" :style="{'--rating': rating}" :title="!rating?'Not rated yet':rating+' stars'"></div>
 </template>
 <style scoped>
     .Stars {
@@ -21,5 +21,4 @@
             -webkit-text-fill-color: transparent;
         }
     }
-
 </style>

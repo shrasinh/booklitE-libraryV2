@@ -1,6 +1,6 @@
 from application.setup import app, tstorage
 from application.models import db, Books, Ratings, Sections, IssuedBook, PurchasedBook
-from flask import abort, json, send_from_directory
+from flask import abort, json, send_from_directory, request
 from werkzeug.exceptions import HTTPException
 from flask_security import current_user, logout_user
 from string import digits, ascii_letters
@@ -32,15 +32,17 @@ def handle_exception(error):
 # caching
 def home():
     sections = []
-    rbook_id = {b for b in db.session.query(Ratings.book_id).all()}
-    book_ids=[]
+    rbook_id = {b.book_id for b in db.session.query(Ratings).all()}
+    book_ids = []
     for s in Sections.query.order_by(Sections.date_created.desc()).all():
         if s.book:
-            d={"section_id": s.id,
-                    "section_name": s.name,
-                    "description": s.description,
-                    "created_on": s.date_created,
-                    "books":[]}
+            d = {
+                "section_id": s.id,
+                "section_name": s.name,
+                "description": s.description,
+                "created_on": s.date_created,
+                "books": [],
+            }
             for b in s.book:
                 d["books"].append(
                     {
@@ -52,7 +54,7 @@ def home():
                         "rating": (
                             db.session.query(db.func.avg(Ratings.rating))
                             .filter(Ratings.book_id == b.id)
-                            .first()
+                            .first()[0]
                             if b.id in rbook_id
                             else 0
                         ),
@@ -60,7 +62,7 @@ def home():
                 )
                 book_ids.append(b.id)
             sections.append(d)
-    return {"sections": sections, "book_ids":list(book_ids)}
+    return {"sections": sections, "book_ids": book_ids}
 
 
 @app.route("/user/role")
@@ -120,6 +122,7 @@ def book(id):
 # caching
 def bookview(id):
     if current_user.is_authenticated:
+        q = request.args.get("type")
         book = db.session.query(Books).filter(Books.id == id).first()
         if book:
             issued = purchased = False
@@ -143,6 +146,13 @@ def bookview(id):
                         .first()
                     )
             if current_user.has_role("Admin") or issued or purchased:
+                if purchased and q == "download":
+                    return send_from_directory(
+                        "files/books",
+                        book.storage,
+                        as_attachment=True,
+                        download_name=book.name,
+                    )
                 return send_from_directory("files/books", book.storage)
             else:
                 abort(403)

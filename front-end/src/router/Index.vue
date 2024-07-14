@@ -55,29 +55,29 @@
 
   <div>
     <h1 class="mb-3 p-2">Sections</h1>
-    <p v-if="sections.length===0" class="text-muted">No sections are currently present.<br></p>
+    <p v-if="sections.length===0" class="text-muted p-2">No sections are currently present.<br></p>
     <div v-else>
       <div v-for="section in sections" class="row">
         <div class="row justify-content-between mx-auto">
-          <div class="col text-start">
+          <div class="col break-word text-start">
             <h3 :title="section.description">
               <strong>{{section.section_name}}</strong>
             </h3>
           </div>
-          <div class="col text-end text-muted">Date created:{{section.created_on}}</div>
+          <div class="col-md text-md-end text-muted">Date created:{{section.created_on}}</div>
         </div>
         <hr>
-        <div class="row row-cols-4 row-cols-lg-6">
-          <div v-for="book in section.books" class="col ms-2 me-2">
+        <div class="row row-cols-3 row-cols-md-4 row-cols-lg-5 row-cols-xl-6">
+          <div v-for="book in section.books" class="col ms-3 me-3">
             <RouterLink class="book h-100 d-flex flex-column" :to="'/book/'+book.book_id">
               <div class="row flex-grow-1">
                 <img :src="book.thumbnail" class="img-thumbnail">
               </div>
               <div class="row h-25">
-                <Starrating :rating="book.rating"></Starrating>
-                <div class="row"><span>Book: {{ book.book_name }}</span></div>
-                <div class="row"><span>Author: {{book.author_name}}</span></div>
-                <div class="row"><span>Language: {{book.language}}</span></div>
+                <Starrating class="Stars-container" :rating="book.rating"></Starrating>
+                <div class="row break-word"><span>Book: {{ book.book_name }}</span></div>
+                <div class="row break-word"><span>Author: {{book.author_name}}</span></div>
+                <div class="row break-word"><span>Language: {{book.language}}</span></div>
               </div>
             </RouterLink>
           </div>
@@ -110,4 +110,23 @@
   .mask {
     border-color: var(--navbar-bg) !important;
   }
+
+  @media (max-width: 1036px) {
+    .mask {
+      width: 70% !important;
+    }
+  }
+
+  @media (max-width: 780px) {
+    .mask {
+      width: 100% !important;
+    }
+  }
+
+  @media (max-width: 690px) {
+    .Stars-container {
+      font-size: 170% !important;
+    }
+  }
+
 </style>

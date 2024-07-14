@@ -27,11 +27,7 @@
         )
 
         let r = await fetchfunct( backurl + "admin/sections/create", {
-            method: "POST", body: bodyContent,
-            headers: {
-                "Authentication-Token": localStorage.getItem(
-                    "Authentication-Token" )
-            }
+            method: "POST", body: bodyContent
         } )
         if ( r.ok )
         {
@@ -52,7 +48,7 @@
     <br>
     <Form :validation-schema="section_schema" @submit="submit">
         <div class='row mb-3 form-element mx-auto'>
-            <div class="col-2">
+            <div class="col-lg-2">
                 <label class="form-label">Section name</label>
             </div>
             <div class="col-auto">
@@ -61,7 +57,7 @@
             </div>
         </div>
         <div class='row mb-3 form-element mx-auto'>
-            <div class="col-2">
+            <div class="col-lg-2">
                 <label class="form-label">Section description</label>
             </div>
             <div class="col-auto">

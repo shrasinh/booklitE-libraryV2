@@ -1,21 +1,11 @@
 <script setup>
-    import { onBeforeMount, ref, watch } from 'vue'
+    import { ref, onMounted } from 'vue'
 
-    onBeforeMount( () =>
-    {
-        if ( !document.getElementById( 'tweenscript' ) )
-        {
-            let tween_script = document.createElement( 'script' )
-            tween_script.src = "https://cdn.jsdelivr.net/npm/tween.js"
-            tween_script.async = false
-            tween_script.id = "tweenscript"
-            document.head.appendChild( tween_script )
-        }
-    } )
 
     const props = defineProps( { value: Number } )
     const tweeningValue = ref( 0 )
-    watch( () => props.value, ( newvalue, oldvalue ) =>
+
+    onMounted( () =>
     {
         function animate ()
         {
@@ -28,7 +18,7 @@
             tweeningValue: 0
         } )
             .to( {
-                tweeningValue: newvalue
+                tweeningValue: props.value
             }, 1000 )
             .onUpdate( function ()
             {

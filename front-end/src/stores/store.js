@@ -1,6 +1,7 @@
 import { ref, reactive, nextTick } from 'vue'
 import { defineStore } from 'pinia'
 
+// used for search and random functionality
 export const useSearchStore = defineStore( 'search', () =>
 {
   const sections = ref( [] )
@@ -8,12 +9,16 @@ export const useSearchStore = defineStore( 'search', () =>
   return { sections, book_ids }
 } )
 
+
+// to guard the routes that requires authorization
 export const useIdentityStore = defineStore( 'identity', () =>
 {
   const identity = ref( [ 'Unauthenticated' ] )
   return { identity }
 } )
 
+
+// to display modal - the Modal component
 export const useModalStore = defineStore( 'modal', () =>
 {
 
@@ -50,6 +55,8 @@ export const useModalStore = defineStore( 'modal', () =>
   return { modal, modalfunc }
 } )
 
+
+// to push the alerts - the Alert component
 export const useAlertStore = defineStore( 'alert', () =>
 {
 
@@ -66,18 +73,24 @@ export const useAlertStore = defineStore( 'alert', () =>
   return { alerts, alertpush }
 } )
 
+
+// to show the spinner- the Spinner component
 export const useLoadingStore = defineStore( 'loading', () =>
 {
   const loading = ref( false )
   return { loading }
 } )
 
+
+// to change the theme - of various different elements
 export const useThemeStore = defineStore( 'theme', () =>
 {
   const theme = ref( 'light' )
   return { theme }
 } )
 
+
+// used by admin side - to get the section and language info required to create a book
 export const useBookcreateStore = defineStore( 'bookcreate', () =>
 {
   const sections = ref( [] )
@@ -85,8 +98,10 @@ export const useBookcreateStore = defineStore( 'bookcreate', () =>
   return { sections, languages }
 } )
 
+
+// used by admin side - to get the book info to assign/revoke books to users
 export const useBookdetailsStore = defineStore( 'bookdetails', () =>
 {
-  const books = ref( {} )
+  const books = ref( [] )
   return { books }
 } )

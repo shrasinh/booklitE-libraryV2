@@ -18,7 +18,7 @@ from datetime import datetime, timedelta
 @app.route("/admin/dashboard")
 # caching
 @roles_required("Admin")
-def admindashboard():
+def adminstats():
     user = len(db.session.query(Users.id).all()) - 1
     Members = len(db.session.query(Roles).filter(Roles.name == "Member").first().users)
     Normal_Users = user - Members
@@ -67,9 +67,9 @@ def adminsectioncreate():
         return '"The section is successfully created."'
     else:
         errors = [
-            j.lower().replace("this field", i)
-            for i in form.errors
-            for j in form.errors[i]
+            f"{field} : {error}"
+            for field in form.errors
+            for error in form.errors[field]
         ]
         abort(400, errors)
 
@@ -86,9 +86,9 @@ def adminsectionedit(id):
             return '"The section is successfully updated."'
         else:
             errors = [
-                j.lower().replace("this field", i)
-                for i in form.errors
-                for j in form.errors[i]
+                f"{field} : {error}"
+                for field in form.errors
+                for error in form.errors[field]
             ]
             abort(400, errors)
     else:
@@ -147,6 +147,10 @@ def adminbooks():
                     if i.return_status == 0
                 ],
                 "book_storage": bstorage(stype="retrieval", id=b.id),
+                "thumbnail": tstorage(
+                    b.thumbnail,
+                    stype="retrieval",
+                ),
             }
         )
     return {"books": books, "sections": sections, "languages": languages}
@@ -181,9 +185,9 @@ def bookcreate():
         return '"The book is successfully created."'
     else:
         errors = [
-            j.lower().replace("this field", i)
-            for i in form.errors
-            for j in form.errors[i]
+            f"{field} : {error}"
+            for field in form.errors
+            for error in form.errors[field]
         ]
         abort(400, errors)
 
@@ -206,9 +210,9 @@ def adminbookdetails(id):
             return '"The book is successfully updated."'
         else:
             errors = [
-                j.lower().replace("this field", i)
-                for i in form.errors
-                for j in form.errors[i]
+                f"{field} : {error}"
+                for field in form.errors
+                for error in form.errors[field]
             ]
             abort(400, errors)
     else:
@@ -365,9 +369,9 @@ def adminusersissuerevoke(id):
                 return res
         else:
             errors = [
-                j.lower().replace("this field", i)
-                for i in form.errors
-                for j in form.errors[i]
+                f"{field} : {error}"
+                for field in form.errors
+                for error in form.errors[field]
             ]
             abort(400, errors)
 

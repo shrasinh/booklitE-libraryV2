@@ -1,8 +1,4 @@
-from application.setup import (
-    app,
-    cardexpired,
-    bstorage,
-)
+from application.setup import app, cardexpired, bstorage, languages, tstorage
 from application.models import (
     db,
     Books,
@@ -11,7 +7,7 @@ from application.models import (
     Ratings,
     PaymentDetails,
 )
-from flask import abort
+from flask import abort, request
 from flask_security import roles_required, current_user
 from application.forms import RatingForm, PaymentDetailsForm
 from datetime import datetime, timedelta
@@ -19,55 +15,64 @@ from datetime import datetime, timedelta
 
 @app.route("/user/dashboard")
 @roles_required("User")
-# caching
-def userdashboard():
-    ibook = db.session.query(IssuedBook).filter(IssuedBook.user_id == current_user.id)
-    pbook = db.session.query(PurchasedBook).filter(
-        PurchasedBook.user_id == current_user.id
-    )
-    return {
-        "graph": [
-            {
-                "book_name": i.book.name,
-                "issue_date": i.issue_date,
-                "return_date": i.return_date,
-            }
-            for i in ibook
-        ],
-        "purchased_book_count": len(pbook),
-        "issued_book_count": len(ibook),
-    }
-
-
-@app.route("/account")
-@roles_required("User")
 def account():
+    ibook = (
+        db.session.query(IssuedBook).filter(IssuedBook.user_id == current_user.id).all()
+    )
+
     return {
         "username": current_user.username,
         "email": current_user.email,
         "last_login_at": current_user.last_login_at,
         "last_login_ip": current_user.last_login_ip,
         "membership": (
-            "Member" if current_user.has_role("Member") else "Normal member"
+            "Subscribed member" if current_user.has_role("Member") else "Normal member"
         ),
-        "payment_details": (
+        "daily_remainders": current_user.daily_remainders,
+        "graph": [
+            [i.book.name, i.issue_date, i.return_date]
+            for i in ibook
+            if i.return_status == 0
+        ],
+        "login_count": current_user.login_count,
+        "purchased_book_count": len(current_user.purchase),
+        "issued_book_count": len(ibook),
+        "rating_count": len(current_user.rating),
+        "payment": (
             {
-                "card_no": current_user.payment.card_no,
-                "cardname": current_user.payment.card_no,
-                "expirydate": current_user.payment.expirydate,
+                "card_number": current_user.payment.cardno,
+                "card_name": current_user.payment.cardname,
+                "expiry_date": current_user.payment.expirydate,
             }
             if current_user.payment
             else {}
         ),
+        "membership_date": (
+            f'"{current_user.membership_date.strftime("%Y-%m-%d %H:%M:%S")}"'
+            if current_user.membership_date
+            else '""'
+        ),
     }
 
 
-@app.route("/paymentdetails", methods=["PUT"])
+@app.route("/user/dailymails")
+@roles_required("User")
+def dailymails():
+    options = request.args.get("options")
+    if options == "out":
+        current_user.daily_remainders = 0
+    else:
+        current_user.daily_remainders = 1
+    db.session.commit()
+    return '"The operation is successful"'
+
+
+@app.route("/user/paymentdetails", methods=["PUT"])
 @roles_required("User")
 def paymentdetails():
-    p = current_user.payment
     form = PaymentDetailsForm()
     if form.validate_on_submit():
+        p = current_user.payment
         if p:
             form.populate_obj(p)
         else:
@@ -82,23 +87,14 @@ def paymentdetails():
         return '"The payment details is successfully updated."'
     else:
         errors = [
-            j.lower().replace("this field", i)
-            for i in form.errors
-            for j in form.errors[i]
+            f"{field} : {error}"
+            for field in form.errors
+            for error in form.errors[field]
         ]
         abort(400, errors)
 
 
-@app.route("/user/confirmation/delete", methods=["DELETE"])
-# caching
-@roles_required("User")
-def userconfirmdelete():
-    app.security.datastore.delete_user(current_user)
-    db.session.commit()
-    return '"The user account is successfully deleted."'
-
-
-@app.route("/membership")
+@app.route("/user/membership", methods=["POST"])
 @roles_required("User")
 def member():
     if not current_user.has_role("Member"):
@@ -108,13 +104,29 @@ def member():
             abort(400, "Your card has expired. Please update your payment details.")
         else:
             app.security.datastore.add_role_to_user(current_user, "Member")
+            current_user.membership_date = datetime.now()
             db.session.commit()
             return '"The membership registration is completed."'
     else:
         abort(403)
 
 
-@app.route("/book/issue/<int:id>")
+@app.route("/user/delete", methods=["DELETE"])
+# caching
+@roles_required("User")
+def userdelete():
+    for i in (
+        db.session.query(IssuedBook)
+        .filter(IssuedBook.user_id == current_user.id, IssuedBook.return_status == 0)
+        .all()
+    ):
+        i.book.noofcopies += 1
+    app.security.datastore.delete_user(current_user)
+    db.session.commit()
+    return '"The user account is successfully deleted."'
+
+
+@app.route("/user/book/issue/<int:id>")
 @roles_required("User")
 def bookissue(id):
     bookdetails = db.session.query(Books).filter(Books.id == id).first()
@@ -176,7 +188,7 @@ def bookissue(id):
         abort(404)
 
 
-@app.route("/book/purchase/<int:id>")
+@app.route("/user/book/purchase/<int:id>")
 @roles_required("User")
 def bookpurchase(id):
     bookdetails = db.session.query(Books).filter(Books.id == id).first()
@@ -206,38 +218,51 @@ def bookpurchase(id):
             )
             db.session.add(row)
             db.session.commit()
-            return "'The book is successfully purchased.'"
+            return '"The book is successfully purchased."'
     else:
         abort(404)
 
 
-@app.route("/user/issuedbooks")
+@app.route("/user/issue")
 @roles_required("User")
 def issue():
-    issues = []
+    previous_issue = []
+    current_issue = []
     for i in (
         db.session.query(IssuedBook).filter(IssuedBook.user_id == current_user.id).all()
     ):
-        issues.append(
-            {
-                "issue_id": i.id,
-                "book_id": i.book_id,
-                "book_name": i.book.name,
-                "section_name": i.book.section.name,
-                "author_name": i.book.author,
-                "issue_date": i.issue_date,
-                "return_date": i.return_date,
-                "storage": (
-                    bstorage(stype="retrieval", id=i.book_id)
-                    if i.return_status == 0
-                    else ""
-                ),
-            }
-        )
-    return {"issues": issues}
+        if i.return_status == 0:
+            current_issue.append(
+                {
+                    "issue_id": i.id,
+                    "book_id": i.book_id,
+                    "book_name": i.book.name,
+                    "section_name": i.book.section.name,
+                    "author_name": i.book.author,
+                    "issue_date": i.issue_date,
+                    "return_date": i.return_date,
+                    "storage": bstorage(stype="retrieval", id=i.book_id),
+                    "language": languages[i.book.language],
+                    "thumbnail": tstorage(i.book.thumbnail, "retrieval"),
+                }
+            )
+        else:
+            previous_issue.append(
+                {
+                    "book_id": i.book_id,
+                    "book_name": i.book.name,
+                    "section_name": i.book.section.name,
+                    "author_name": i.book.author,
+                    "issue_date": i.issue_date,
+                    "return_date": i.return_date,
+                    "thumbnail": tstorage(i.book.thumbnail, "retrieval"),
+                }
+            )
+
+    return {"previous_issue": previous_issue, "current_issue": current_issue}
 
 
-@app.route("/user/issuedbooks/return/<int:id>")
+@app.route("/user/issue/return/<int:id>")
 @roles_required("User")
 def returnbook(id):
     issuedetails = (
@@ -245,7 +270,7 @@ def returnbook(id):
         .filter(
             IssuedBook.user_id == current_user.id,
             IssuedBook.return_status == 0,
-            IssuedBook.book_id == id,
+            IssuedBook.id == id,
         )
         .first()
     )
@@ -259,7 +284,7 @@ def returnbook(id):
         abort(400, "You have not yet issued the book.")
 
 
-@app.route("/user/purchasedbooks")
+@app.route("/user/purchase")
 @roles_required("User")
 def purchase():
     purchases = []
@@ -270,6 +295,7 @@ def purchase():
     ):
         purchases.append(
             {
+                "purchase_id": p.id,
                 "book_id": p.book_id,
                 "book_name": p.book.name,
                 "section_name": p.book.section.name,
@@ -277,6 +303,7 @@ def purchase():
                 "purchase_date": p.purchase_date,
                 "price": p.price,
                 "storage": bstorage(stype="retrieval", id=p.book_id),
+                "thumbnail": tstorage(p.book.thumbnail, "retrieval"),
             }
         )
     return {"purchases": purchases}
@@ -300,10 +327,11 @@ def rating():
                 "rating": r.rating,
                 "rating_date": r.rating_date,
                 "feedback": r.feedback,
+                "thumbnail": tstorage(r.book.thumbnail, "retrieval"),
             }
         )
     for p in (
-        db.session.query(PurchasedBook.book_id)
+        db.session.query(PurchasedBook)
         .filter(PurchasedBook.user_id == current_user.id)
         .all()
     ):
@@ -315,12 +343,11 @@ def rating():
                     "book_name": p.book.name,
                     "section_name": p.book.section.name,
                     "author_name": p.book.author,
+                    "thumbnail": tstorage(p.book.thumbnail, "retrieval"),
                 }
             )
     for i in (
-        db.session.query(IssuedBook.book_id)
-        .filter(IssuedBook.user_id == current_user.id)
-        .all()
+        db.session.query(IssuedBook).filter(IssuedBook.user_id == current_user.id).all()
     ):
         if i.book_id not in book_id:
             book_id.add(i.book_id)
@@ -352,9 +379,9 @@ def ratingedit(id):
         return '"The rating is successfully updated."'
     else:
         errors = [
-            j.lower().replace("this field", i)
-            for i in form.errors
-            for j in form.errors[i]
+            f"{field} : {error}"
+            for field in form.errors
+            for error in form.errors[field]
         ]
         abort(400, errors)
 
@@ -394,12 +421,12 @@ def ratingcreate(book_id):
         )
         db.session.add(row)
         db.session.commit()
-        return '"The rating is successfully created."'
+        return {"rating_id": row.id}
     else:
         errors = [
-            j.lower().replace("this field", i)
-            for i in form.errors
-            for j in form.errors[i]
+            f"{field} : {error}"
+            for field in form.errors
+            for error in form.errors[field]
         ]
         abort(400, errors)
 

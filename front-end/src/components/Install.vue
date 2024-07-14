@@ -5,7 +5,7 @@
     {
         event.preventDefault();
         installPrompt.value = event
-        bootstrap.Toast.getOrCreateInstance( document.getElementById( 'install-prompt' ), { delay: 15000 } ).show()
+        bootstrap.Toast.getOrCreateInstance( document.getElementById( 'install-prompt' ), { delay: 10000 } ).show()
     }
 
     onMounted( () =>
@@ -30,7 +30,7 @@
 <template>
 
     <div class="toast-container start-50 translate-middle" style="padding-top: 12rem">
-        <div id="install-prompt" class="toast" style="min-width:120%">
+        <div id="install-prompt" class="toast">
             <div class="toast-header">
                 <img src="https://img.icons8.com/color/92/story-book.png" class="rounded me-2">
                 <strong class="me-auto">Install Booklit</strong>

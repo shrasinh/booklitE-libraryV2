@@ -29,6 +29,10 @@ textarea,select {
   color: var(--bs-form-invalid-color)
 }
 
+.nav-tabs .nav-link {
+  color: var(--navbar-bg)
+}
+
 .pointer-link {
   cursor: pointer;
 }
@@ -44,3 +48,15 @@ textarea,select {
     background-position: 2% 60%;
     padding-left: 30px;
 }
+
+g text {
+        fill: var(--bs-body-color)!important;
+    }
+
+svg > g:nth-child(2) >rect:not(:last-child){
+  fill: var(--bs-body-bg)!important
+}
+
+code {
+        color: var(--bs-body-color);
+    }
