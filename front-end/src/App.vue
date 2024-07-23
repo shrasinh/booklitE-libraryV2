@@ -11,7 +11,7 @@
   import { fetchfunct, checkerror } from './components/fetch.js'
   import { useModalStore, useIdentityStore, useAlertStore, useSearchStore, useLoadingStore } from './stores/store.js'
   import router from './router/index.js'
-  import Install from './components/Install.vue'
+  import Toast from './components/Toast.vue'
 
   const { identity } = storeToRefs( useIdentityStore() )
   const { book_ids, sections } = storeToRefs( useSearchStore() )
@@ -77,9 +77,26 @@
         <i class="bi bi-book"></i> BookLit
       </RouterLink>
 
-      <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#Navbar">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+      <div class="display-offcanvas-lg row align-items-center justify-content-end">
+        <div class="col-auto">
+          <i class="bi bi-search search-button-lg pointer-link" data-bs-toggle="modal"
+            data-bs-target="#searchModal"></i>
+        </div>
+        <div class="col-auto">
+          <a class="pointer-link icon-link icon-link-hover nav-link" @click="random">
+            <i class="bi bi-shuffle"></i>
+          </a>
+        </div>
+        <div class="col-auto">
+          <Theme></Theme>
+        </div>
+        <div class="col-auto">
+          <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#Navbar">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+        </div>
+      </div>
+
       <div class="offcanvas offcanvas-end" tabindex="-1" id="Navbar">
 
         <div class="offcanvas-header">
@@ -134,7 +151,7 @@
           </ul>
 
           <ul class="navbar-nav ms-auto">
-            <li class="nav-item">
+            <li class="nav-item display-navbar-lg">
               <button class="search-button" data-bs-toggle="modal" data-bs-target="#searchModal">
                 <i class="bi bi-search"></i> Search
               </button>
@@ -142,12 +159,12 @@
             <li class="nav-item" data-bs-dismiss="offcanvas">
               <RouterLink class="nav-link" to="/policies">Policies</RouterLink>
             </li>
-            <li class="nav-item" title="pick a random book" data-bs-dismiss="offcanvas">
+            <li class="nav-item display-navbar-lg" title="pick a random book" data-bs-dismiss="offcanvas">
               <a class="nav-link pointer-link icon-link icon-link-hover" @click="random">
                 <i class="bi bi-shuffle"></i>
               </a>
             </li>
-            <li class="nav-item">
+            <li class="nav-item display-navbar-lg">
               <Theme></Theme>
             </li>
           </ul>
@@ -156,7 +173,7 @@
       </div>
     </div>
   </nav>
-  <Install></Install>
+  <Toast></Toast>
   <Modal></Modal>
   <Search></Search>
   <div v-for="(value,key) in useAlertStore().alerts" :key="key">
@@ -194,10 +211,30 @@
     background: rgba(0, 0, 0, 0.1);
     height: 38px;
     border: 1px solid rgba(132, 124, 124, 0.4);
-    border-radius: .375rem
+    border-radius: .375rem;
   }
 
   .search-button:hover {
-    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(109, 1, 125, 0.499) !important
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(109, 1, 125, 0.499)
+  }
+
+  @media(min-width:992px) {
+    .display-navbar-lg {
+      display: block;
+    }
+
+    .display-offcanvas-lg {
+      display: none;
+    }
+  }
+
+  @media(max-width:992px) {
+    .display-offcanvas-lg {
+      display: flex;
+    }
+
+    .display-navbar-lg {
+      display: none;
+    }
   }
 </style>

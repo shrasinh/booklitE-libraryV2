@@ -6,9 +6,11 @@ from flask_security import (
     SQLAlchemyUserDatastore,
     hash_password,
 )
-from application.models import Users, Roles, db, IssuedBook
+from application.models import Users, Roles, db
 import os
 from datetime import datetime
+from celery import Celery
+from flask_mailman import Mail
 
 
 # instantiate the flask application
@@ -16,6 +18,7 @@ app = Flask("BookLit")
 
 # for app configuration
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///library.sqlite3"
+
 app.config["SECRET_KEY"] = os.environ.get(
     "SECRET_KEY", "pf9Wkove4IKEAXvy-cQkeDPhv9Cb3Ag-wyJILbq_dFw"
 )
@@ -38,6 +41,12 @@ app.config["MAIL_SERVER"] = os.getenv("MAIL_SERVER")
 app.config["MAIL_PORT"] = os.getenv("MAIL_PORT")
 app.config["MAIL_USERNAME"] = os.getenv("MAIL_USERNAME")
 app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
+app.config["MAIL_USE_SSL"] = True
+
+
+app.config["broker_url"] = "redis://localhost:6379/1"
+app.config["result_backend"] = "redis://localhost:6379/2"
+app.config["broker_connection_retry_on_startup"] = True
 
 
 # disabling sending of cookie
@@ -71,6 +80,28 @@ class CustomResponse(Response):
 
 app.response_class = CustomResponse
 
+
+# initializing celery
+celery = Celery(
+    app.name, broker=app.config["broker_url"], include=["controllers.Async"]
+)
+celery.conf.update(app.config)
+celery.conf.enable_utc = False
+
+
+# always run celery with app context
+class ContextTask(celery.Task):
+    def __call__(self, *args, **kwargs):
+        with app.app_context():
+            return self.run(*args, **kwargs)
+
+
+celery.Task = ContextTask
+
+# initializing flask-mailman
+mail = Mail(app)
+
+
 # for db migration i.e to change the database schema
 migrate = Migrate(app, db)
 
@@ -78,7 +109,6 @@ migrate = Migrate(app, db)
 user_datastore = SQLAlchemyUserDatastore(db, Users, Roles)
 app.security = Security(app, user_datastore)
 
-# pushing the app context
 with app.app_context():
     db.init_app(app)  # database integration to the application
     db.create_all()  # create the tables if not created
@@ -95,17 +125,6 @@ with app.app_context():
             password=hash_password("pass#word12"),
             roles=[row3],
         )
-    db.session.commit()
-
-
-# the function checks if any issued book access needs to be revoked due to return date expiration
-def issuedbooktime():
-    ibook = IssuedBook.query.all()
-    now = datetime.now()
-    for book in ibook:
-        if now > book.return_date and book.return_status == 0:
-            book.return_status = 1
-            book.book.noofcopies += 1
     db.session.commit()
 
 

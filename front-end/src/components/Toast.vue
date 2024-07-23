@@ -47,5 +47,15 @@
 
         </div>
     </div>
-
+    <div class="toast-container bottom-0 end-0">
+        <div id="export-notification" class="toast">
+            <div class="toast-header">
+                <img src="https://img.icons8.com/color/92/story-book.png" class="rounded me-2">
+                <strong class="me-auto">Booklit</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+            </div>
+        </div>
+    </div>
 </template>

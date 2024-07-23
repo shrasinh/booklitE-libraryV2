@@ -1,4 +1,4 @@
-from application.setup import app, bstorage, tstorage, languages
+from application.setup import app, bstorage, tstorage, languages, CustomResponse
 from application.models import (
     db,
     Users,
@@ -11,8 +11,11 @@ from application.models import (
 import os
 from flask import abort, request
 from application.forms import BookForm, SectionForm, IssueRevokeForm
+from controllers.Async import create_csv
 from flask_security import roles_required
 from datetime import datetime, timedelta
+import base64
+from time import sleep
 
 
 @app.route("/admin/dashboard")
@@ -377,3 +380,30 @@ def adminusersissuerevoke(id):
 
     else:
         abort(404)
+
+
+@app.route("/admin/export")
+@roles_required("Admin")
+def export():
+    etype = request.args.get("etype", "section")
+    task = create_csv.apply_async(args=[etype])
+    return {"task_id": task.id}
+
+
+@app.route("/admin/export/notify/<id>")
+@roles_required("Admin")
+def notify(id):
+    def eventStream():
+        while True:
+            task = create_csv.AsyncResult(id)
+            if task.state == "FAILURE":
+                return "data:Task failed to be completed!"
+            elif task.state == "SUCCESS":
+                with open(f"files/reports/{task.get()['result']}", "rb") as csv_file:
+                    csv_data = csv_file.read()
+                    encoded_csv = base64.b64encode(csv_data).decode("utf-8")
+                os.remove(f"files/reports/{task.get()['result']}")
+                return f"data:{encoded_csv}\n\n"
+            sleep(1)
+
+    return CustomResponse(eventStream(), mimetype="text/event-stream")

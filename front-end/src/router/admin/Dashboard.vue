@@ -1,5 +1,6 @@
 <script setup>
     import Stats from './dashboard_view/Stats.vue'
+    import Export from './dashboard_view/Export.vue'
     import { onBeforeRouteLeave } from 'vue-router'
     import { fetchfunct, checkerror } from '../../components/fetch.js'
     import { onMounted, ref } from 'vue'
@@ -31,17 +32,13 @@
 
 <template>
 
-    <ul class="nav nav-tabs flex-column flex-sm-row justify-content-end">
+    <ul class="nav nav-tabs justify-content-end">
         <li class="nav-item">
             <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#stats">Library
                 stats</button>
         </li>
         <li class="nav-item">
             <button class="nav-link" data-bs-toggle="tab" data-bs-target="#export">Export library
-                details</button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#monthly">Monthly
                 details</button>
         </li>
     </ul>
@@ -51,18 +48,8 @@
             <Stats v-if="admin" :admin="admin"></Stats>
         </div>
         <div class="tab-pane fade" id="export">
-            <Stats v-if="admin" :admin="admin"></Stats>
-        </div>
-        <div class="tab-pane fade" id="monthly">
-            <Stats v-if="admin" :admin="admin"></Stats>
+            <Export v-if="admin"></Export>
         </div>
     </div>
 
 </template>
-<style scoped>
-    @media (max-width: 576px) {
-        .nav-tabs {
-            flex-direction: column !important;
-        }
-    }
-</style>

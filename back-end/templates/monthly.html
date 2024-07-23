@@ -1,0 +1,44 @@
+<body>
+    <div class="container">
+        <h1>{{name}}</h1>
+        <p class="greeting">
+            Dear Librarian,<br>
+            Please review the details below about the library performance.
+        </p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Number of books issued this month</td>
+                    <td>{{book_issued_this_month}}</td>
+                </tr>
+                <tr>
+                    <td>Total number of books issued</td>
+                    <td>{{book_issued_total}}</td>
+                </tr>
+                <tr>
+                    <td>Number of books purchased this month</td>
+                    <td>{{book_purchased_this_month}}</td>
+                </tr>
+                <tr>
+                    <td>Total number of books purchased</td>
+                    <td>{{book_purchased_total}}</td>
+                </tr>
+                <tr>
+                    <td>Number of sections created this month</td>
+                    <td>{{section_created_this_month}}</td>
+                </tr>
+                <tr>
+                    <td>Total number of sections created</td>
+                    <td>{{section_created_total}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <p class="footer">From Booklit System</p>
+    </div>
+</body>
