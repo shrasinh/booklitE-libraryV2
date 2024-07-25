@@ -52,7 +52,11 @@ class BookForm(FlaskForm):
     price = FloatField("Price", validators=[InputRequired(), NumberRange(min=0)])
 
     def validate_price(form, field):
-        if (not field.data % 1 == 0) and len(str(field.data).split(".")[1]) > 2:
+        if (
+            field.data
+            and (not field.data % 1 == 0)
+            and len(str(field.data).split(".")[1]) > 2
+        ):
             raise ValidationError(
                 "The price should not have more than 2 decimal precision."
             )

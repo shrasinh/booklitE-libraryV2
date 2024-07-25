@@ -1,4 +1,4 @@
-from application.setup import app, tstorage
+from application.setup import app, tstorage, CustomResponse, cache
 from application.models import db, Books, Ratings, Sections, IssuedBook, PurchasedBook
 from flask import abort, json, send_from_directory, request
 from werkzeug.exceptions import HTTPException
@@ -9,8 +9,7 @@ from random import SystemRandom
 
 @app.errorhandler(HTTPException)
 def handle_exception(error):
-    response = error.get_response()
-    response.data = json.dumps(
+    data = json.dumps(
         {
             "response": {
                 "errors": (
@@ -21,18 +20,13 @@ def handle_exception(error):
             }
         }
     )
-    response.headers = {
-        "Content-type": "application/json",
-        "Access-Control-Allow-Origin": "http://localhost:5173",
-    }
-    return response
+    return CustomResponse(data, status=error.code)
 
 
 @app.route("/")
-# caching
+@cache.cached(timeout=100)
 def home():
     sections = []
-    rbook_id = {b.book_id for b in db.session.query(Ratings).all()}
     book_ids = []
     for s in Sections.query.order_by(Sections.date_created.desc()).all():
         if s.book:
@@ -55,8 +49,6 @@ def home():
                             db.session.query(db.func.avg(Ratings.rating))
                             .filter(Ratings.book_id == b.id)
                             .first()[0]
-                            if b.id in rbook_id
-                            else 0
                         ),
                     }
                 )
@@ -91,7 +83,7 @@ def logout():
 
 
 @app.route("/book/<int:id>")
-# caching
+@cache.memoize(timeout=200)
 def book(id):
     book = db.session.query(Books).filter(Books.id == id).first()
     if not book:
@@ -119,7 +111,6 @@ def book(id):
 
 
 @app.route("/book/pdf/<int:id>")
-# caching
 def bookview(id):
     if current_user.is_authenticated:
         q = request.args.get("type")

@@ -36,14 +36,24 @@ class Users(db.Model, UserMixin):
     fs_uniquifier = db.Column(db.String(64), unique=True, nullable=False)
     membership_date = db.Column(db.DateTime, nullable=True)
     daily_remainders = db.Column(db.Boolean, default=0, nullable=False)
-    roles = db.relationship("Roles", secondary="UsersRoles", back_populates="users")
-    rating = db.relationship("Ratings", cascade="all,delete", back_populates="user")
-    issue = db.relationship("IssuedBook", cascade="all,delete", back_populates="user")
+    roles = db.relationship(
+        "Roles", secondary="UsersRoles", back_populates="users", lazy="subquery"
+    )
+    rating = db.relationship(
+        "Ratings", cascade="all,delete", back_populates="user", lazy="subquery"
+    )
+    issue = db.relationship(
+        "IssuedBook", cascade="all,delete", back_populates="user", lazy="subquery"
+    )
     purchase = db.relationship(
-        "PurchasedBook", cascade="all,delete", back_populates="user"
+        "PurchasedBook", cascade="all,delete", back_populates="user", lazy="subquery"
     )
     payment = db.relationship(
-        "PaymentDetails", uselist=False, cascade="all,delete", back_populates="user"
+        "PaymentDetails",
+        uselist=False,
+        cascade="all,delete",
+        back_populates="user",
+        lazy="subquery",
     )
 
 
@@ -52,7 +62,9 @@ class Sections(db.Model):
     date_created = db.Column(db.DateTime, default=datetime.now(), nullable=False)
     name = db.Column(db.String, nullable=False)
     description = db.Column(db.Text, nullable=False)
-    book = db.relationship("Books", cascade="all,delete", back_populates="section")
+    book = db.relationship(
+        "Books", cascade="all,delete", back_populates="section", lazy="subquery"
+    )
 
 
 class Books(db.Model):
@@ -68,11 +80,17 @@ class Books(db.Model):
     language = db.Column(db.String, nullable=False)
     storage = db.Column(db.String, nullable=False)
     thumbnail = db.Column(db.String, nullable=False)
-    section = db.relationship("Sections", uselist=False, back_populates="book")
-    rating = db.relationship("Ratings", cascade="all,delete", back_populates="book")
-    issue = db.relationship("IssuedBook", cascade="all,delete", back_populates="book")
+    section = db.relationship(
+        "Sections", uselist=False, back_populates="book", lazy="subquery"
+    )
+    rating = db.relationship(
+        "Ratings", cascade="all,delete", back_populates="book", lazy="subquery"
+    )
+    issue = db.relationship(
+        "IssuedBook", cascade="all,delete", back_populates="book", lazy="subquery"
+    )
     purchase = db.relationship(
-        "PurchasedBook", cascade="all,delete", back_populates="book"
+        "PurchasedBook", cascade="all,delete", back_populates="book", lazy="subquery"
     )
 
 
@@ -80,7 +98,9 @@ class Roles(db.Model, RoleMixin):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     name = db.Column(db.String, unique=True)
     description = db.Column(db.String, nullable=False)
-    users = db.relationship("Users", secondary="UsersRoles", back_populates="roles")
+    users = db.relationship(
+        "Users", secondary="UsersRoles", back_populates="roles", lazy="subquery"
+    )
 
 
 class PaymentDetails(db.Model):
@@ -91,7 +111,9 @@ class PaymentDetails(db.Model):
     user_id = db.Column(
         db.Integer, db.ForeignKey("users.id"), unique=True, nullable=False
     )
-    user = db.relationship("Users", uselist=False, back_populates="payment")
+    user = db.relationship(
+        "Users", uselist=False, back_populates="payment", lazy="subquery"
+    )
 
 
 class IssuedBook(db.Model):
@@ -101,8 +123,12 @@ class IssuedBook(db.Model):
     return_status = db.Column(db.Boolean, default=0, nullable=False)
     book_id = db.Column(db.Integer, db.ForeignKey("books.id"), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    user = db.relationship("Users", uselist=False, back_populates="issue")
-    book = db.relationship("Books", uselist=False, back_populates="issue")
+    user = db.relationship(
+        "Users", uselist=False, back_populates="issue", lazy="subquery"
+    )
+    book = db.relationship(
+        "Books", uselist=False, back_populates="issue", lazy="subquery"
+    )
 
 
 class PurchasedBook(db.Model):
@@ -113,8 +139,12 @@ class PurchasedBook(db.Model):
     )
     book_id = db.Column(db.Integer, db.ForeignKey("books.id"), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    user = db.relationship("Users", uselist=False, back_populates="purchase")
-    book = db.relationship("Books", uselist=False, back_populates="purchase")
+    user = db.relationship(
+        "Users", uselist=False, back_populates="purchase", lazy="subquery"
+    )
+    book = db.relationship(
+        "Books", uselist=False, back_populates="purchase", lazy="subquery"
+    )
 
 
 class Ratings(db.Model):
@@ -125,5 +155,9 @@ class Ratings(db.Model):
     rating_date = db.Column(db.DateTime, default=datetime.now(), nullable=False)
     feedback = db.Column(db.Text)
     __table_args__ = (db.UniqueConstraint("user_id", "book_id"),)
-    user = db.relationship("Users", uselist=False, back_populates="rating")
-    book = db.relationship("Books", uselist=False, back_populates="rating")
+    user = db.relationship(
+        "Users", uselist=False, back_populates="rating", lazy="subquery"
+    )
+    book = db.relationship(
+        "Books", uselist=False, back_populates="rating", lazy="subquery"
+    )

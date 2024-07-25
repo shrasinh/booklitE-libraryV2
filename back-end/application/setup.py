@@ -11,14 +11,19 @@ import os
 from datetime import datetime
 from celery import Celery
 from flask_mailman import Mail
+from flask_caching import Cache
 
 
 # instantiate the flask application
 app = Flask("BookLit")
 
+
 # for app configuration
+
+## for flask-sqlalchemy
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///library.sqlite3"
 
+## for flask-security-too
 app.config["SECRET_KEY"] = os.environ.get(
     "SECRET_KEY", "pf9Wkove4IKEAXvy-cQkeDPhv9Cb3Ag-wyJILbq_dFw"
 )
@@ -37,16 +42,22 @@ app.config["SECURITY_LOGOUT_METHODS"] = None
 app.config["SECURITY_TOKEN_MAX_AGE"] = 60 * 60 * 24
 app.config["WTF_CSRF_ENABLED"] = False
 
+## for flask-mailman
 app.config["MAIL_SERVER"] = os.getenv("MAIL_SERVER")
 app.config["MAIL_PORT"] = os.getenv("MAIL_PORT")
 app.config["MAIL_USERNAME"] = os.getenv("MAIL_USERNAME")
 app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
 app.config["MAIL_USE_SSL"] = True
 
-
+## for celery
 app.config["broker_url"] = "redis://localhost:6379/1"
 app.config["result_backend"] = "redis://localhost:6379/2"
 app.config["broker_connection_retry_on_startup"] = True
+
+## for flask-caching
+app.config["CACHE_TYPE"] = "RedisCache"
+app.config["CACHE_REDIS_HOST"] = "localhost"
+app.config["CACHE_REDIS_PORT"] = 6379
 
 
 # disabling sending of cookie
@@ -58,11 +69,11 @@ class CustomSessionInterface(SecureCookieSessionInterface):
 app.session_interface = CustomSessionInterface()
 
 
+# adding the headers that allow cross-origin requests and jsonifying the response
 class CustomResponse(Response):
     default_mimetype = "application/json"
 
     def __init__(self, response=None, **kwargs):
-        # adding the headers that allow cross-origin requests
         kwargs["headers"] = {
             "Access-Control-Allow-Origin": "http://localhost:5173",
             "Access-Control-Allow-Headers": "Authentication-Token,content-type",
@@ -72,7 +83,6 @@ class CustomResponse(Response):
 
     @classmethod
     def force_type(cls, rv, environ=None):
-        # jsonifying the response
         if isinstance(rv, dict):
             rv = jsonify(rv)
         return super(CustomResponse, cls).force_type(rv, environ)
@@ -101,18 +111,26 @@ celery.Task = ContextTask
 # initializing flask-mailman
 mail = Mail(app)
 
+# initializing flask-caching
+cache = Cache(app)
 
-# for db migration i.e to change the database schema
+# initializing flask-migrate
 migrate = Migrate(app, db)
 
-# for flask security setup
+# initializing flask-security-too
 user_datastore = SQLAlchemyUserDatastore(db, Users, Roles)
 app.security = Security(app, user_datastore)
 
+
 with app.app_context():
-    db.init_app(app)  # database integration to the application
+
+    db.init_app(app)  # initializing flask-sqlalchemy
+
     db.create_all()  # create the tables if not created
-    if not app.security.datastore.find_user(email=os.environ.get("LIBRARIAN_EMAIL")):
+
+    if not app.security.datastore.find_user(
+        email=os.environ.get("LIBRARIAN_EMAIL")
+    ):  # if librarian is not created
         row1 = Roles(name="User", description="To get user priviliges")
         row2 = Roles(name="Member", description="To get the member privileges")
         row3 = Roles(name="Admin", description="To get admin priviliges")
@@ -128,28 +146,31 @@ with app.app_context():
     db.session.commit()
 
 
-# to get the path of book pdf
+# some functions and variable used all over the app
+
+
+## to get the path of book pdf
 def bstorage(l=None, stype="store", id=None):
     if stype == "retrieval":
         return f"http://localhost:5500/book/pdf/{id}"
     return os.path.join("files", "books", l)
 
 
-# to get the path of book thumbnail
+## to get the path of book thumbnail
 def tstorage(l, stype="store"):
     if stype == "retrieval":
         return "http://localhost:5500/static/thumbnail/" + l
     return os.path.join("static", "thumbnail", l)
 
 
-# to check whether the user card details expired or not
+## to check whether the user card details expired or not
 def cardexpired(p):
     if datetime.now() > p.expirydate:
         return True
     return False
 
 
-# languages in which the books can be
+## languages in which the books can be
 languages = {
     "English (United States)": "en-US",
     "Deutsch": "de-DE",

@@ -34,7 +34,7 @@ def setup_periodic_tasks(**kwargs):
     )
 
     celery.add_periodic_task(
-        20,
+        crontab(day_of_month=1, hour=7, minute=0),
         monthly_status.s(),
         name="send monthly reports to admin",
     )

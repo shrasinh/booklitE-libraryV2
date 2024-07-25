@@ -100,7 +100,7 @@
                                 <RouterLink :to="'/book/'+book.book_id"
                                     v-if="filter_result(book.book_name,book.author_name,section.section_name)"
                                     class="list-group-item list-group-item-action search-result">
-                                    <div class="row">
+                                    <div class="row" data-bs-dismiss="modal">
                                         <div class="col-auto">
                                             <img :src="book.thumbnail" class="img-fluid img-thumbnail">
                                         </div>

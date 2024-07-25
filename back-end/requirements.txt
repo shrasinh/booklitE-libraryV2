@@ -5,11 +5,11 @@ Flask-Security-Too==5.3.3
 Flask-SQLAlchemy==3.1.1
 Flask-WTF==1.2.1
 Flask-Caching==2.3.0
+Flask-Mailman==1.1.1
 WTForms==3.1.2
 zxcvbn==4.4.28
 bleach==6.1.0
 redis==5.0.4
 celery[redis]==5.4.0
-Flask-Mailman==1.1.1
 pdfkit==1.0.0
 pandas==2.2.2

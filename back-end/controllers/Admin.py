@@ -1,4 +1,4 @@
-from application.setup import app, bstorage, tstorage, languages, CustomResponse
+from application.setup import app, bstorage, tstorage, languages, CustomResponse, cache
 from application.models import (
     db,
     Users,
@@ -18,15 +18,30 @@ import base64
 from time import sleep
 
 
+@cache.cached(timeout=100, key_prefix="all_sections")
+def get_sections():
+    return Sections.query.all()
+
+
+@cache.cached(timeout=100, key_prefix="all_books")
+def get_books():
+    return Books.query.all()
+
+
+@cache.cached(timeout=100, key_prefix="all_users")
+def get_users():
+    return Users.query.all()
+
+
 @app.route("/admin/dashboard")
-# caching
 @roles_required("Admin")
+@cache.cached(timeout=60)
 def adminstats():
-    user = len(db.session.query(Users.id).all()) - 1
+    user = len(get_users()) - 1
     Members = len(db.session.query(Roles).filter(Roles.name == "Member").first().users)
     Normal_Users = user - Members
-    section = len(db.session.query(Sections.id).all())
-    book = len(db.session.query(Books.id).all())
+    section = len(get_sections())
+    book = len(get_books())
     ibook = len(db.session.query(IssuedBook.book_id).all())
     pbook = len(db.session.query(PurchasedBook.book_id).all())
     return {
@@ -41,9 +56,10 @@ def adminstats():
 
 @app.route("/admin/sections")
 @roles_required("Admin")
+@cache.cached(timeout=60)
 def adminsections():
     sections = []
-    for s in Sections.query.all():
+    for s in get_sections():
         sections.append(
             {
                 "section_id": s.id,
@@ -99,7 +115,6 @@ def adminsectionedit(id):
 
 
 @app.route("/admin/sections/delete", methods=["DELETE"])
-# caching
 @roles_required("Admin")
 def adminsectiondelete():
     section_ids = request.form.get("section_ids", "").split(",")
@@ -125,10 +140,8 @@ def adminsectiondelete():
 @roles_required("Admin")
 def adminbooks():
     books = []
-    sections = [
-        {"section_id": s.id, "section_name": s.name} for s in Sections.query.all()
-    ]
-    for b in db.session.query(Books).all():
+    sections = [{"section_id": s.id, "section_name": s.name} for s in get_sections()]
+    for b in get_books():
         books.append(
             {
                 "book_id": b.id,
@@ -163,7 +176,7 @@ def adminbooks():
 @roles_required("Admin")
 def bookcreate():
     form = BookForm()
-    form.section_id.choices = [(s.id, s.name) for s in Sections.query.all()]
+    form.section_id.choices = [(s.id, s.name) for s in get_sections()]
     if form.validate_on_submit():
         tnail = form.thumbnail.data
         thumbnail = datetime.now().strftime("%Y%m%d%H%M%S") + ".png"
@@ -203,9 +216,7 @@ def adminbookdetails(id):
         form = BookForm()
         del form.storage
         del form.thumbnail
-        form.section_id.choices = [
-            (s.id, s.name) for s in Sections.query.order_by(Sections.name).all()
-        ]
+        form.section_id.choices = [(s.id, s.name) for s in get_sections()]
         if form.validate_on_submit():
             form.populate_obj(book)
             book.language = form.language.data
@@ -223,7 +234,6 @@ def adminbookdetails(id):
 
 
 @app.route("/admin/books/delete", methods=["DELETE"])
-# caching
 @roles_required("Admin")
 def adminbookdelete():
     book_ids = request.form.get("book_ids", "").split(",")
@@ -248,8 +258,8 @@ def adminbookdelete():
 @roles_required("Admin")
 def adminusers():
     users = []
-    books = {b.id: b.name for b in Books.query.all()}
-    for u in db.session.query(Users).all():
+    books = {b.id: b.name for b in get_books()}
+    for u in get_users():
         if not u.has_role("Admin"):
             users.append(
                 {

@@ -1,4 +1,4 @@
-from application.setup import app, cardexpired, bstorage, languages, tstorage
+from application.setup import app, cardexpired, bstorage, languages, tstorage, cache
 from application.models import (
     db,
     Books,
@@ -13,8 +13,14 @@ from application.forms import RatingForm, PaymentDetailsForm
 from datetime import datetime, timedelta
 
 
+def make_key(id=None):
+    # make user specific and path specific key
+    return str(current_user.id) + request.full_path
+
+
 @app.route("/user/dashboard")
 @roles_required("User")
+@cache.cached(timeout=60, make_cache_key=make_key)
 def account():
     ibook = (
         db.session.query(IssuedBook).filter(IssuedBook.user_id == current_user.id).all()
@@ -112,8 +118,8 @@ def member():
 
 
 @app.route("/user/delete", methods=["DELETE"])
-# caching
 @roles_required("User")
+@cache.cached(timeout=200, make_cache_key=make_key)
 def userdelete():
     for i in (
         db.session.query(IssuedBook)
@@ -128,6 +134,7 @@ def userdelete():
 
 @app.route("/user/book/issue/<int:id>")
 @roles_required("User")
+@cache.cached(timeout=60, make_cache_key=make_key)
 def bookissue(id):
     bookdetails = db.session.query(Books).filter(Books.id == id).first()
     if bookdetails:
@@ -190,6 +197,7 @@ def bookissue(id):
 
 @app.route("/user/book/purchase/<int:id>")
 @roles_required("User")
+@cache.cached(timeout=60, make_cache_key=make_key)
 def bookpurchase(id):
     bookdetails = db.session.query(Books).filter(Books.id == id).first()
     if bookdetails:
@@ -225,6 +233,7 @@ def bookpurchase(id):
 
 @app.route("/user/issue")
 @roles_required("User")
+@cache.cached(timeout=60, make_cache_key=make_key)
 def issue():
     previous_issue = []
     current_issue = []
@@ -264,6 +273,7 @@ def issue():
 
 @app.route("/user/issue/return/<int:id>")
 @roles_required("User")
+@cache.cached(timeout=60, make_cache_key=make_key)
 def returnbook(id):
     issuedetails = (
         db.session.query(IssuedBook)
@@ -286,6 +296,7 @@ def returnbook(id):
 
 @app.route("/user/purchase")
 @roles_required("User")
+@cache.cached(timeout=60, make_cache_key=make_key)
 def purchase():
     purchases = []
     for p in (
@@ -311,6 +322,7 @@ def purchase():
 
 @app.route("/user/ratings")
 @roles_required("User")
+@cache.cached(timeout=60, make_cache_key=make_key)
 def rating():
     rated = []
     not_rated = []
@@ -432,8 +444,8 @@ def ratingcreate(book_id):
 
 
 @app.route("/user/ratings/delete/<int:id>", methods=["DELETE"])
-# caching
 @roles_required("User")
+@cache.cached(timeout=200, make_cache_key=make_key)
 def ratingdelete(id):
     userrating = (
         db.session.query(Ratings)

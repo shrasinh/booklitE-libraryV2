@@ -20,8 +20,14 @@
             },
             vAxis: {
                 title: 'User Count',
-                viewWindowMode: "maximized"
-            }
+                viewWindowMode: 'maximized'
+            },
+            animation: {
+                startup: true,
+                duration: 1000,
+                easing: 'inAndOut'
+            },
+            tooltip: { isHtml: true }
         };
 
         var chart = new google.visualization.ColumnChart( document.getElementById( 'admin_chart' ) );
