@@ -20,7 +20,7 @@
             },
             vAxis: {
                 title: 'User Count',
-                viewWindowMode: 'maximized'
+                viewWindow: { min: 0 }
             },
             animation: {
                 startup: true,

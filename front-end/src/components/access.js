@@ -2,7 +2,7 @@ import { Form, Field, ErrorMessage } from 'vee-validate'
 import { h } from 'vue'
 import { object, string, ref } from "yup"
 import { useIdentityStore, useModalStore, useAlertStore, useLoadingStore } from '../stores/store.js'
-import { fetchfunct, checkerror } from './fetch.js'
+import { fetchfunct, checkerror, checksuccess } from './fetch.js'
 import router from '../router/index.js'
 
 
@@ -16,7 +16,7 @@ const register_schema = object().shape( {
 const register = {
     id: 'registerModal',
     title: 'Let\'s Get You Signed Up.',
-    body: h( Form, { onSubmit: login_or_register, onModalclose: ( e ) => e.target.reset(), 'validation-schema': register_schema }, () => [
+    body: h( Form, { onSubmit: register_function, onModalclose: ( e ) => e.target.reset(), 'validation-schema': register_schema }, () => [
         h( 'div', { class: 'form-floating mb-3 form-element' }, [ h( Field, { class: 'form-control', name: "username", autocomplete: 'username', placeholder: 'username' } ), h( 'label', 'Username' ), h( ErrorMessage, { class: "form-text", name: "username" } ) ] ),
         h( 'div', { class: 'form-floating mb-3 form-element' }, [ h( Field, { class: 'form-control', name: "email", placeholder: 'email' } ), h( 'label', 'Email Address' ), h( ErrorMessage, { class: "form-text", name: "email" } ) ] ),
         h( 'div', { class: 'form-floating mb-3 form-element' }, [ h( Field, { class: 'form-control', name: "password", type: "password", autocomplete: 'new-password', placeholder: 'password' } ), h( 'label', 'Password' ), h( ErrorMessage, { class: "form-text", name: "password" } ) ] ),
@@ -26,23 +26,7 @@ const register = {
     footer: h( 'a', { class: 'pointer-link', onClick: () => useModalStore().modalfunc( login ) }, "Already have an account? Login" )
 }
 
-const login_schema = object().shape( {
-    username: string().trim().matches( /^[\p{L}\p{N}]+$/u, "Must be unicode letters and numbers only." ).required().min( 4 ).max( 32 ).strict(),
-    password: string().matches( /^(?!(^\s+$))/, 'Blank-spaces only password is not allowed.' ).required().min( 8 ).strict(),
-} )
-
-const login = {
-    id: 'loginModal',
-    title: 'Welcome Back!',
-    body: h( Form, { onSubmit: login_or_register, onModalclose: ( e ) => e.target.reset(), 'validation-schema': login_schema }, () => [
-        h( 'div', { class: 'form-floating mb-3 form-element' }, [ h( Field, { class: 'form-control', name: "username", autocomplete: 'username', placeholder: 'username' } ), h( 'label', 'Username' ), h( ErrorMessage, { class: "form-text", name: "username" } ) ] ),
-        h( 'div', { class: 'form-floating mb-3 form-element' }, [ h( Field, { class: 'form-control', name: "password", type: "password", autocomplete: 'current-password', placeholder: 'password' } ), h( 'label', 'Password' ), h( ErrorMessage, { class: "form-text", name: "password" } ) ] ),
-        h( 'div', { class: 'd-grid gap-2' }, h( 'button', { class: 'btn btn-outline-primary' }, 'Login' ) ),
-    ] ),
-    footer: h( 'a', { class: 'pointer-link', onClick: () => useModalStore().modalfunc( register ) }, "New user? Register" ),
-}
-
-async function login_or_register ( values, { resetForm } )
+async function register_function ( values, { resetForm } )
 {
 
     // hiding the bootstrap modal element
@@ -55,25 +39,65 @@ async function login_or_register ( values, { resetForm } )
     let headersList = {
         "Content-Type": "application/json"
     }
-    if ( values.email )
+
+    let bodyContent = JSON.stringify( {
+        "username": values.username,
+        "password": values.password,
+        "email": values.email
+    } )
+
+
+    let response = await fetchfunct( backurl + "/user/register", { method: "POST", body: bodyContent, headers: headersList } )
+
+    if ( response.ok )
     {
-        var bodyContent = JSON.stringify( {
-            "username": values.username,
-            "password": values.password,
-            "email": values.email
-        } )
-        var fetchurl = backurl + "register?include_auth_token"
+        checksuccess( response )
     }
     else
     {
-        var bodyContent = JSON.stringify( {
-            "username": values.username,
-            "password": values.password,
-        } )
-        var fetchurl = backurl + "login?include_auth_token"
+        checkerror( response )
+    }
+    // stopping the loading screen
+    useLoadingStore().loading = false
+}
+
+const login_schema = object().shape( {
+    username: string().trim().matches( /^[\p{L}\p{N}]+$/u, "Must be unicode letters and numbers only." ).required().min( 4 ).max( 32 ).strict(),
+    password: string().matches( /^(?!(^\s+$))/, 'Blank-spaces only password is not allowed.' ).required().min( 8 ).strict(),
+} )
+
+const login = {
+    id: 'loginModal',
+    title: 'Welcome Back!',
+    body: h( Form, { onSubmit: login_function, onModalclose: ( e ) => e.target.reset(), 'validation-schema': login_schema }, () => [
+        h( 'div', { class: 'form-floating mb-3 form-element' }, [ h( Field, { class: 'form-control', name: "username", autocomplete: 'username', placeholder: 'username' } ), h( 'label', 'Username' ), h( ErrorMessage, { class: "form-text", name: "username" } ) ] ),
+        h( 'div', { class: 'form-floating mb-3 form-element' }, [ h( Field, { class: 'form-control', name: "password", type: "password", autocomplete: 'current-password', placeholder: 'password' } ), h( 'label', 'Password' ), h( ErrorMessage, { class: "form-text", name: "password" } ) ] ),
+        h( 'div', { class: 'd-grid gap-2' }, h( 'button', { class: 'btn btn-outline-primary' }, 'Login' ) ),
+    ] ),
+    footer: h( 'a', { class: 'pointer-link', onClick: () => useModalStore().modalfunc( register ) }, "New user? Register" ),
+}
+
+async function login_function ( values, { resetForm } )
+{
+
+    // hiding the bootstrap modal element
+    bootstrap.Modal.getInstance( document.getElementById( useModalStore().modal.id ) ).hide()
+    //resetting the form
+    resetForm()
+    // start the spinner/loading screen
+    useLoadingStore().loading = true
+    //sending the login details
+    let headersList = {
+        "Content-Type": "application/json"
     }
 
-    let response = await fetchfunct( fetchurl, { method: "POST", body: bodyContent, headers: headersList } )
+    let bodyContent = JSON.stringify( {
+        "username": values.username,
+        "password": values.password,
+    } )
+
+
+    let response = await fetchfunct( backurl + "login?include_auth_token", { method: "POST", body: bodyContent, headers: headersList } )
 
     if ( response.ok )
     {

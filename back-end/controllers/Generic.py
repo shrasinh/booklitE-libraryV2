@@ -1,10 +1,31 @@
-from application.setup import app, tstorage, CustomResponse, cache
+from application.setup import (
+    app,
+    tstorage,
+    CustomResponse,
+    cache,
+    user_datastore,
+    security_username,
+    security_password,
+    security_mail,
+)
 from application.models import db, Books, Ratings, Sections, IssuedBook, PurchasedBook
 from flask import abort, json, send_from_directory, request
 from werkzeug.exceptions import HTTPException
-from flask_security import current_user, logout_user
 from string import digits, ascii_letters
 from random import SystemRandom
+from flask_security import (
+    current_user,
+    logout_user,
+)
+from flask_security.utils import (
+    hash_password,
+    send_mail,
+)
+from flask_security.confirmable import (
+    generate_confirmation_token,
+    confirm_email_token_status,
+    confirm_user,
+)
 
 
 @app.errorhandler(HTTPException)
@@ -80,6 +101,93 @@ def logout():
         return '"You have successfully logged out."'
     else:
         abort(401)
+
+
+@app.route("/user/register", methods=["POST"])
+def register():
+    data = request.get_json()
+    email = data.get("email")
+    username = data.get("username")
+    password = data.get("password")
+
+    # Validate presence of email, username, and password
+    if not email or not username or not password:
+        abort(400, "Email, username, and password are required.")
+
+    # Validate password, email and username
+    try:
+        security_mail.validate(email)
+        msg, normalized = security_username.validate(username)
+        if msg:
+            raise ValueError(msg)
+        msg, normalized = security_password.validate(password, True)
+        if msg:
+            abort(400, msg)
+
+    except ValueError as e:
+        abort(400, str(e))
+
+    # normalize password,email,username
+    password = security_password.normalize(password)
+    email = security_mail.normalize(email)
+    username = security_username.normalize(username)
+
+    # Check if the user already exists by email or username
+    if user_datastore.find_user(email=email) or user_datastore.find_user(
+        username=username
+    ):
+        abort(400, "User already exists.")
+
+    # Create a new user
+    user = user_datastore.create_user(
+        email=email,
+        username=username,
+        password=hash_password(password),
+    )
+    user_datastore.add_role_to_user(user, "User")
+    db.session.commit()
+
+    # Send a confirmation email
+    token = generate_confirmation_token(user)
+    confirmation_link = f"http://localhost:5173?token={token}"
+    send_mail(
+        "Please confirm your email address",
+        user.email,
+        "confirmation_instructions",
+        user=user,
+        confirmation_link=confirmation_link,
+        confirmation_token=token,
+    )
+
+    return '"You have successfully registered.Please check and confirm your email before login."'
+
+
+@app.route("/user/confirm/<token>", methods=["GET"])
+def confirm_email(token):
+    expired, invalid, user = confirm_email_token_status(token)
+    if not user or invalid:
+        abort(400, "Invalid confirmation token")
+    if expired and not user.confirmed_at:
+        # Send a confirmation email
+        token = generate_confirmation_token(user)
+        confirmation_link = f"http://localhost:5173?token={token}"
+        send_mail(
+            "Please confirm your email address",
+            user.email,
+            "confirmation_instructions",
+            user=user,
+            confirmation_link=confirmation_link,
+            confirmation_token=token,
+        )
+        abort(400, "Confirmation token has expired. Confirmation email is send again.")
+    if user.confirmed_at:
+        abort(400, "Account already confirmed")
+
+    # Confirm the user
+    confirm_user(user)
+    db.session.commit()
+
+    return '"Account confirmed successfully. You can now login to your account."'
 
 
 @app.route("/book/<int:id>")

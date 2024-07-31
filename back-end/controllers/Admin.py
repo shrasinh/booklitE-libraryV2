@@ -18,17 +18,17 @@ import base64
 from time import sleep
 
 
-@cache.cached(timeout=100, key_prefix="all_sections")
+@cache.cached(timeout=10, key_prefix="all_sections")
 def get_sections():
     return Sections.query.all()
 
 
-@cache.cached(timeout=100, key_prefix="all_books")
+@cache.cached(timeout=60, key_prefix="all_books")
 def get_books():
     return Books.query.all()
 
 
-@cache.cached(timeout=100, key_prefix="all_users")
+@cache.cached(timeout=60, key_prefix="all_users")
 def get_users():
     return Users.query.all()
 
@@ -258,7 +258,7 @@ def adminbookdelete():
 @roles_required("Admin")
 def adminusers():
     users = []
-    books = {b.id: b.name for b in get_books()}
+    books = {b.id: b.name for b in get_books() if b.noofcopies > 0}
     for u in get_users():
         if not u.has_role("Admin"):
             users.append(

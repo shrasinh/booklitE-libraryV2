@@ -57,6 +57,10 @@ svg > g:nth-child(2) >rect:not(:last-child){
   fill: var(--bs-body-bg)!important
 }
 
-code {
-        color: var(--bs-body-color);
-    }
+.item {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  display: block;
+}

@@ -101,16 +101,16 @@
                                     v-if="filter_result(book.book_name,book.author_name,section.section_name)"
                                     class="list-group-item list-group-item-action search-result">
                                     <div class="row" data-bs-dismiss="modal">
-                                        <div class="col-auto">
+                                        <div class="col-4">
                                             <img :src="book.thumbnail" class="img-fluid img-thumbnail">
                                         </div>
-                                        <div class="col-auto">
+                                        <div class="col-8">
                                             <div>
                                                 <Starrating :rating="book.rating"></Starrating>
                                             </div>
-                                            <div>Book: {{ book.book_name }}</div>
-                                            <div>Section: {{ section.section_name }}</div>
-                                            <div>Author: {{ book.author_name }}</div>
+                                            <div class="item">Book: {{ book.book_name }}</div>
+                                            <div class="item">Section: {{ section.section_name }}</div>
+                                            <div class="item">Author: {{ book.author_name }}</div>
                                         </div>
                                     </div>
                                 </RouterLink>

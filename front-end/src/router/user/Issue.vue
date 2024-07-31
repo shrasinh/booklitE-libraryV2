@@ -144,17 +144,29 @@
                                         style="max-height:200px;max-width:200px">
                                 </div>
                                 <div class="col-lg row mt-2">
-                                    <div class="row"><span><code>Book: </code>
+                                    <div class="row">
+                                        <div class="col-lg-4 col-auto">Book</div>
+                                        <div class="col-auto">
                                             <RouterLink :to="`/book/${issue.book_id}`">
                                                 {{ issue.book_name }}
                                             </RouterLink>
-                                        </span>
+                                        </div>
                                     </div>
-                                    <div class="row"><span><code>Section:</code> {{ issue.section_name }}</span></div>
-                                    <div class="row"><span><code>Author:</code> {{ issue.author_name }}</span></div>
-                                    <div class="row"><span><code>Issue Date:</code> {{ issue.issue_date }}</span></div>
                                     <div class="row">
-                                        <span><code>Return Date:</code> {{ issue.return_date }}</span>
+                                        <div class="col-lg-4 col-auto">Section</div>
+                                        <div class="col-auto">{{ issue.section_name }}</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-4 col-auto">Author</div>
+                                        <div class="col-auto">{{ issue.author_name }}</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-4 col-auto">Issue Date</div>
+                                        <div class="col-auto">{{ issue.issue_date }}</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-4 col-auto">Return Date</div>
+                                        <div class="col-auto">{{ issue.return_date }}</div>
                                     </div>
                                     <div class="row column-gap-3 mt-3">
                                         <span class="col-auto">
@@ -209,17 +221,29 @@
                                         style="max-height:200px;max-width:200px">
                                 </div>
                                 <div class="col-lg row mt-2">
-                                    <div class="row"><span><code>Book: </code>
+                                    <div class="row">
+                                        <div class="col-lg-4 col-auto">Book</div>
+                                        <div class="col-auto">
                                             <RouterLink :to="`/book/${issue.book_id}`">
                                                 {{ issue.book_name }}
                                             </RouterLink>
-                                        </span>
+                                        </div>
                                     </div>
-                                    <div class="row"><span><code>Section:</code> {{ issue.section_name }}</span></div>
-                                    <div class="row"><span><code>Author:</code> {{ issue.author_name }}</span></div>
-                                    <div class="row"><span><code>Issue Date:</code> {{ issue.issue_date }}</span></div>
                                     <div class="row">
-                                        <span><code>Return Date:</code> {{ issue.return_date }}</span>
+                                        <div class="col-lg-4 col-auto">Section</div>
+                                        <div class="col-auto">{{ issue.section_name }}</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-4 col-auto">Author</div>
+                                        <div class="col-auto">{{ issue.author_name }}</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-4 col-auto">Issue Date</div>
+                                        <div class="col-auto">{{ issue.issue_date }}</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-4 col-auto">Return Date</div>
+                                        <div class="col-auto">{{ issue.return_date }}</div>
                                     </div>
                                 </div>
                             </td>

@@ -92,15 +92,27 @@
                                 style="max-height:200px;max-width:200px">
                         </div>
                         <div class="col-lg row mt-2">
-                            <div class="row"><span><code>Book: </code>
-                                    <RouterLink :to="`/book/${purchase.book_id}`">{{ purchase.book_name }}</RouterLink>
-                                </span>
-                            </div>
-                            <div class="row"><span><code>Section:</code> {{ purchase.section_name }}</span></div>
-                            <div class="row"><span><code>Author:</code> {{ purchase.author_name }}</span></div>
-                            <div class="row"><span><code>Issue Date:</code> {{ purchase.purchase_date }}</span></div>
                             <div class="row">
-                                <span><code>Price:</code> &#8377;{{ purchase.price }}</span>
+                                <div class="col-lg-4 col-auto">Book</div>
+                                <div class="col-auto">
+                                    <RouterLink :to="`/book/${purchase.book_id}`">{{ purchase.book_name }}</RouterLink>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-4 col-auto">Section</div>
+                                <div class="col-auto">{{ purchase.section_name }}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-4 col-auto">Author</div>
+                                <div class="col-auto">{{ purchase.author_name }}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-4 col-auto">Purchase Date</div>
+                                <div class="col-auto">{{ purchase.purchase_date }}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-4 col-auto">Price</div>
+                                <div class="col-auto">&#8377;{{ purchase.price }}</div>
                             </div>
                             <div class="row column-gap-3 mt-3">
                                 <span class="col-auto">

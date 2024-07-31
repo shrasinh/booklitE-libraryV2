@@ -123,19 +123,28 @@
                                     :data-bs-target="'#collapse'+section.section_id">
                                     <div class="col-lg row">
                                         <div class="row">
-                                            <span><code>Section Id: </code>
-                                                {{section.section_id}}
-                                            </span>
+
+                                            <div class="col-lg-4 col-auto">Section Id</div>
+                                            <div class="col-auto">{{section.section_id}}</div>
+
                                         </div>
                                         <div class="row">
-                                            <span><code>Section Name: </code>
-                                                {{section.section_name}}
-                                            </span>
-                                        </div>
-                                        <div class="row"><span><code>Created on: </code>{{section.created_on}}</span>
+
+                                            <div class="col-lg-4 col-auto">Section Name</div>
+                                            <div class="col-auto">{{section.section_name}}</div>
+
                                         </div>
                                         <div class="row">
-                                            <span><code>Number of books associated: </code>{{section.books.length}}</span>
+
+                                            <div class="col-lg-4 col-auto">Created on</div>
+                                            <div class="col-auto">{{section.created_on}}</div>
+
+                                        </div>
+                                        <div class="row">
+
+                                            <div class="col-lg-4 col-auto">Number of books associated</div>
+                                            <div class="col-auto">{{section.books.length}}</div>
+
                                         </div>
                                     </div>
                                 </div>

@@ -1,4 +1,3 @@
-from math import e
 from application.setup import celery, db, app, mail
 from application.models import (
     IssuedBook,
@@ -30,7 +29,7 @@ def setup_periodic_tasks(**kwargs):
     celery.add_periodic_task(
         crontab(hour=18, minute=0),
         daily_remainders.s(),
-        name="send users remainders to visit app",
+        name="send users remainders to visit app and return the issued books that have return date approaching",
     )
 
     celery.add_periodic_task(
@@ -102,13 +101,25 @@ def create_csv(etype):
 
 @celery.task
 def revoke():
-    ibook = IssuedBook.query.all()
-    now = datetime.now()
-    for book in ibook:
-        if now > book.return_date and book.return_status == 0:
-            book.return_status = 1
-            book.book.noofcopies += 1
-    db.session.commit()
+    with mail.get_connection() as conn:
+        emails = []
+        ibook = IssuedBook.query.all()
+        now = datetime.now()
+        for book in ibook:
+            if now > book.return_date and book.return_status == 0:
+                book.return_status = 1
+                book.book.noofcopies += 1
+                emails.append(
+                    EmailMessage(
+                        subject=f"Access for {book.book.name} is revoked",
+                        body=f"""Dear {book.user.username}\n\nThis is to inform you that your access to {book.book.name} has been revoked as the access deadline has passed.\n\nIf you want you can again reissue the book by visiting Booklit.\n\nWarm regards,\nBooklit team""",
+                        from_email=app.config["MAIL_USERNAME"],
+                        to=[book.user.email],
+                    )
+                )
+        db.session.commit()
+        if emails:
+            conn.send_messages(emails)
 
 
 @celery.task
@@ -134,6 +145,22 @@ def daily_remainders():
                     EmailMessage(
                         subject="Remainder to visit Booklit today!!",
                         body=f"""Dear {user.username}\n\nIt seems that you have yet to login to your Booklit account for today. Please make time to visit it.\n\nWarm regards,\nBooklit team""",
+                        from_email=app.config["MAIL_USERNAME"],
+                        to=[user.email],
+                    )
+                )
+            books = ""
+            for issue in user.issue:
+                if (
+                    issue.return_status == 0
+                    and issue.return_date < datetime.now() + timedelta(days=1)
+                ):
+                    books += issue.book.name + "\n"
+            if books:
+                emails.append(
+                    EmailMessage(
+                        subject=f"Remainder to return the issued books",
+                        body=f"""Dear {user.username}\n\nThis is to inform you that your access for the following books are soon going to be revoked:\n\n{books}\nYou can return the books before the deadline, else their access will be automatically revoked past deadline.\nIf you want you can again reissue the book by visiting Booklit.\n\nWarm regards,\nBooklit team""",
                         from_email=app.config["MAIL_USERNAME"],
                         to=[user.email],
                     )

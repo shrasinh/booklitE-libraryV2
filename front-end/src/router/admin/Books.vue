@@ -128,26 +128,28 @@
                                     </div>
                                     <div class="col-lg row">
                                         <div class="row">
-                                            <span><code>Book Id: </code>
-                                                {{book.book_id}}
-                                            </span>
+                                            <div class="col-lg-4 col-auto">Book Id</div>
+                                            <div class="col-auto">{{book.book_id}}</div>
                                         </div>
                                         <div class="row">
-                                            <span><code>Book Name: </code>
-                                                {{book.book_name}}
-                                            </span>
+                                            <div class="col-lg-4 col-auto">Book Name</div>
+                                            <div class="col-auto">{{book.book_name}}</div>
                                         </div>
                                         <div class="row">
-                                            <span><code>Number of copies available: </code>{{book.no_of_copies_available}}</span>
+                                            <div class="col-lg-4 col-auto">Number of copies available</div>
+                                            <div class="col-auto">{{book.no_of_copies_available}}</div>
                                         </div>
                                         <div class="row">
-                                            <span><code>Number of current issues: </code>{{book.currently_issued_by.length}}</span>
+                                            <div class="col-lg-4 col-auto">Number of current issues</div>
+                                            <div class="col-auto">{{book.currently_issued_by.length}}</div>
                                         </div>
                                         <div class="row">
-                                            <span><code>Total number of issues: </code>{{book.no_of_issues}}</span>
+                                            <div class="col-lg-4 col-auto">Total number of issues</div>
+                                            <div class="col-auto">{{book.no_of_issues}}</div>
                                         </div>
                                         <div class="row">
-                                            <span><code>Total number of purchases: </code>{{book.no_of_purchase}}</span>
+                                            <div class="col-lg-4 col-auto">Total number of purchases</div>
+                                            <div class="col-auto">{{book.no_of_purchase}}</div>
                                         </div>
                                     </div>
                                 </div>

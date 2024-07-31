@@ -17,6 +17,23 @@
         book.value.ratings.map( e => { rating_count[ e.rating ] += 1 } )
         return rating_count
     } )
+    const feedback_present = computed( () =>
+    {
+        if ( book.value.ratings.length > 0 )
+        {
+            for ( const i of book.value.ratings )
+            {
+                if ( i.feedback )
+                {
+                    return true
+                }
+
+            }
+            return false
+        }
+        return false
+
+    } )
 
     const average = computed( () =>
     {
@@ -196,7 +213,7 @@
         </div>
     </div>
 
-    <h1 class="p-2">Reviews</h1>
+    <h1 class="p-2">Ratings & Reviews</h1>
     <div class="row p-2" v-if="book.ratings.length>0">
         <div class="col-lg-4">
 
@@ -236,6 +253,7 @@
                     <hr>
                 </div>
             </div>
+            <div v-if="!feedback_present" class="text-muted">No reviews present.</div>
         </div>
 
     </div>

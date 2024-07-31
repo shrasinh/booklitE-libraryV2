@@ -369,6 +369,7 @@ def rating():
                     "book_name": i.book.name,
                     "section_name": i.book.section.name,
                     "author_name": i.book.author,
+                    "thumbnail": tstorage(i.book.thumbnail, "retrieval"),
                 }
             )
     return {"rated": rated, "not_rated": not_rated}

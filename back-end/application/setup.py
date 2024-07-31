@@ -5,6 +5,9 @@ from flask_security import (
     Security,
     SQLAlchemyUserDatastore,
     hash_password,
+    MailUtil,
+    PasswordUtil,
+    UsernameUtil,
 )
 from application.models import Users, Roles, db
 import os
@@ -31,7 +34,6 @@ app.config["SECURITY_PASSWORD_SALT"] = os.environ.get(
     "SECURITY_PASSWORD_SALT", "146585145368132386173505678016728509634"
 )
 app.config["SECURITY_TRACKABLE"] = True
-app.config["SECURITY_REGISTERABLE"] = True
 app.config["SECURITY_SEND_REGISTER_EMAIL"] = False
 app.config["SECURITY_USERNAME_ENABLE"] = True
 app.config["SECURITY_USERNAME_REQUIRED"] = True
@@ -73,13 +75,13 @@ app.session_interface = CustomSessionInterface()
 class CustomResponse(Response):
     default_mimetype = "application/json"
 
-    def __init__(self, response=None, **kwargs):
+    def __init__(self, response=None, *args, **kwargs):
         kwargs["headers"] = {
             "Access-Control-Allow-Origin": "http://localhost:5173",
             "Access-Control-Allow-Headers": "Authentication-Token,content-type",
             "Access-Control-Allow-Methods": "*",
         }
-        return super(CustomResponse, self).__init__(response, **kwargs)
+        return super(CustomResponse, self).__init__(response, *args, **kwargs)
 
     @classmethod
     def force_type(cls, rv, environ=None):
@@ -120,6 +122,9 @@ migrate = Migrate(app, db)
 # initializing flask-security-too
 user_datastore = SQLAlchemyUserDatastore(db, Users, Roles)
 app.security = Security(app, user_datastore)
+security_password = PasswordUtil(app)
+security_mail = MailUtil(app)
+security_username = UsernameUtil(app)
 
 
 with app.app_context():
@@ -142,6 +147,7 @@ with app.app_context():
             email=os.environ.get("LIBRARIAN_EMAIL"),
             password=hash_password("pass#word12"),
             roles=[row3],
+            confirmed_at=datetime.now(),
         )
     db.session.commit()
 

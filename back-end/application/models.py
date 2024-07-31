@@ -33,6 +33,7 @@ class Users(db.Model, UserMixin):
     last_login_ip = db.Column(db.String)
     current_login_ip = db.Column(db.String)
     login_count = db.Column(db.Integer)
+    confirmed_at = db.Column(db.DateTime)
     fs_uniquifier = db.Column(db.String(64), unique=True, nullable=False)
     membership_date = db.Column(db.DateTime, nullable=True)
     daily_remainders = db.Column(db.Boolean, default=0, nullable=False)

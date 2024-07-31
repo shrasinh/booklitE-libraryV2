@@ -2,14 +2,30 @@
   import { onMounted } from 'vue';
   import Carousel from '../components/Carousel.vue'
   import { useLoadingStore, useSearchStore } from '../stores/store.js'
-  import { fetchfunct, checkerror } from '../components/fetch.js'
+  import { fetchfunct, checkerror, checksuccess } from '../components/fetch.js'
   import { storeToRefs } from 'pinia'
-  import { RouterLink } from 'vue-router'
+  import { RouterLink, onBeforeRouteUpdate, useRoute } from 'vue-router'
   import Starrating from '../components/Starrating.vue'
 
   const { sections, book_ids } = storeToRefs( useSearchStore() )
+  const route = useRoute()
+  async function confirm ()
+  {
+    if ( route.query && route.query.token )
+    {
+      let r = await fetchfunct( backurl + 'user/confirm/' + route.query.token )
+      if ( r.ok )
+      {
+        checksuccess( r )
+      }
+      else
+      {
+        checkerror( r )
+      }
 
-
+    }
+  }
+  onBeforeRouteUpdate( confirm )
   onMounted( async () =>
   {
     useLoadingStore().loading = true
@@ -26,6 +42,7 @@
     }
     // stopping the loading screen
     useLoadingStore().loading = false
+    confirm()
   } )
 </script>
 
@@ -57,7 +74,7 @@
     <h1 class="mb-3 p-2">Sections</h1>
     <p v-if="sections.length===0" class="text-muted p-2">No sections are currently present.<br></p>
     <div v-else>
-      <div v-for="section in sections" class="row">
+      <div v-for="section in sections" class="row mb-3">
         <div class="row justify-content-between mx-auto">
           <div class="col break-word text-start">
             <h3 :title="section.description">
@@ -70,14 +87,14 @@
         <div class="row row-cols-3 row-cols-md-4 row-cols-lg-5 row-cols-xl-6">
           <div v-for="book in section.books" class="col ms-3 me-3">
             <RouterLink class="book h-100 d-flex flex-column" :to="'/book/'+book.book_id">
-              <div class="row flex-grow-1">
+              <div class="row h-75">
                 <img :src="book.thumbnail" class="img-thumbnail">
               </div>
-              <div class="row h-25">
+              <div class="row flex-grow-1">
                 <Starrating class="Stars-container" :rating="book.rating"></Starrating>
-                <div class="row break-word"><span>Book: {{ book.book_name }}</span></div>
-                <div class="row break-word"><span>Author: {{book.author_name}}</span></div>
-                <div class="row break-word"><span>Language: {{book.language}}</span></div>
+                <div class="row item"><span>Book: {{ book.book_name }}</span></div>
+                <div class="row item"><span>Author: {{book.author_name}}</span></div>
+                <div class="row item"><span>Language: {{book.language}}</span></div>
               </div>
             </RouterLink>
           </div>
@@ -100,7 +117,7 @@
   }
 
   .book:visited {
-    color: blueviolet
+    color: blueviolet;
   }
 
   .book:hover {

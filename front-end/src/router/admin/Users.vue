@@ -53,31 +53,34 @@
                             :data-bs-target="'#collapse'+user.user_id">
                             <div class="col-md">
                                 <div class="row">
-                                    <span><code>User Id: </code>
-                                        {{user.user_id}}
-                                    </span>
+                                    <div class="col-lg-4 col-auto">User Id</div>
+                                    <div class="col-auto">{{user.user_id}}</div>
                                 </div>
                                 <div class="row">
-                                    <span><code>User name: </code>
-                                        {{user.username}}
-                                    </span>
+                                    <div class="col-lg-4 col-auto">User name</div>
+                                    <div class="col-auto">{{user.username}}</div>
                                 </div>
                                 <div class="row">
-                                    <span><code>Role: </code>{{user.roles}}</span>
+                                    <div class="col-lg-4 col-auto">Role</div>
+                                    <div class="col-auto">{{user.roles}}</div>
                                 </div>
                                 <div class="row">
-                                    <span><code>Issue limit: </code>{{user.issue_limit}}</span>
+                                    <div class="col-lg-4 col-auto">Issue limit</div>
+                                    <div class="col-auto">{{user.issue_limit}}</div>
                                 </div>
                             </div>
                             <div class="col-md">
                                 <div class="row">
-                                    <span><code>Number of current issues: </code>{{user.currently_issued_books.length}}</span>
+                                    <div class="col-lg-4 col-auto">Number of current issues</div>
+                                    <div class="col-auto">{{user.currently_issued_books.length}}</div>
                                 </div>
                                 <div class="row">
-                                    <span><code>Number of issues: </code>{{user.no_of_issues}}</span>
+                                    <div class="col-lg-4 col-auto">Number of issues</div>
+                                    <div class="col-auto">{{user.no_of_issues}}</div>
                                 </div>
                                 <div class="row">
-                                    <span><code>Number of purchases: </code>{{user.no_of_purchase}}</span>
+                                    <div class="col-lg-4 col-auto">Number of purchases</div>
+                                    <div class="col-auto">{{user.no_of_purchase}}</div>
                                 </div>
                             </div>
                         </div>

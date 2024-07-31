@@ -93,7 +93,7 @@
             </div>
         </div>
     </div>
-    <p v-if="rated.length===0" class="text-muted ms-3 p-2">
+    <p v-if="rated.length===0" class="text-muted ms-4">
         You have not yet given any rating. All your ratings will appear in this section.</p>
 
     <div v-else>
@@ -115,20 +115,30 @@
                                     </div>
                                     <div class="col-lg row">
                                         <div class="row">
-                                            <span><code>Rated: </code>
+                                            <div class="col-lg-4 col-auto">Rated</div>
+                                            <div class="col-auto">
                                                 <Starrating :rating="rate.rating"></Starrating>
-                                            </span>
+                                            </div>
                                         </div>
                                         <div class="row">
-                                            <span><code>Book: </code>
-                                                <RouterLink :to="'/book/'+rate.book_id">{{rate.book_name}}
+                                            <div class="col-lg-4 col-auto">Book</div>
+                                            <div class="col-auto">
+                                                <RouterLink :to="'/book/'+rate.book_id"
+                                                    @click="event.stopPropagation()">{{rate.book_name}}
                                                 </RouterLink>
-                                            </span>
+                                            </div>
                                         </div>
-                                        <div class="row"><span><code>Section: </code>{{rate.section_name}}</span></div>
-                                        <div class="row"><span><code>Author: </code>{{rate.author_name}}</span></div>
                                         <div class="row">
-                                            <span><code>On: </code>{{rate.rating_date}}</span>
+                                            <div class="col-lg-4 col-auto">Section</div>
+                                            <div class="col-auto">{{rate.section_name}}</div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-4 col-auto">Author</div>
+                                            <div class="col-auto">{{rate.author_name}}</div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-4 col-auto">On</div>
+                                            <div class="col-auto">{{rate.rating_date}}</div>
                                         </div>
                                     </div>
                                 </div>

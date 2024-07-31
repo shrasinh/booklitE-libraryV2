@@ -84,7 +84,7 @@
             embedMode: "LIGHT_BOX",
 
         }
-        const adobeDCView = new AdobeDC.View( { clientId: import.meta.env.VITE_ADOBE_ID, divId: props.id } );
+        const adobeDCView = new AdobeDC.View( { clientId: import.meta.env.VITE_ADOBE_API_KEY, divId: props.id } );
 
         adobeDCView.previewFile( {
             content: {
