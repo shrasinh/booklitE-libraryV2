@@ -123,9 +123,7 @@
                                         <div class="row">
                                             <div class="col-lg-4 col-auto">Book</div>
                                             <div class="col-auto">
-                                                <RouterLink :to="'/book/'+rate.book_id"
-                                                    @click="event.stopPropagation()">{{rate.book_name}}
-                                                </RouterLink>
+                                                {{rate.book_name}}
                                             </div>
                                         </div>
                                         <div class="row">
