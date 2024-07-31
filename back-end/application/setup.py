@@ -10,6 +10,7 @@ from flask_security import (
     UsernameUtil,
 )
 from flask.json.provider import JSONProvider
+from decimal import Decimal
 from application.models import Users, Roles, db
 import os
 import json
@@ -132,6 +133,8 @@ class JSON_Improved(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, datetime):
             return o.strftime("%a %d %b %Y %H:%M:%S")
+        if isinstance(o,Decimal):
+            return str(o)
         else:
             return super(JSON_Improved, self).default(o)
 
@@ -139,7 +142,7 @@ class JSON_Improved(json.JSONEncoder):
 class CustomJSONProvider(JSONProvider):
 
     def dumps(self, obj, **kwargs):
-        return json.dumps(obj, **kwargs, cls=JSON_Improved)
+        return json.dumps(obj, **kwargs , cls=JSON_Improved)
         
     def loads(self, s: str | bytes, **kwargs):
         return json.loads(s, **kwargs)
