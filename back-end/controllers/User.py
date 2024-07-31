@@ -15,7 +15,7 @@ from datetime import datetime, timedelta
 
 def make_key(id=None):
     # make user specific and path specific key
-    return str(current_user.id) + request.full_path
+    return current_user.fs_uniquifier + request.full_path
 
 
 @app.route("/user/dashboard")
