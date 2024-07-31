@@ -35,7 +35,7 @@ Following are the features present in Booklit:
   - **Revoke Overdue Access**: Automatically revokes access to books that have passed their return date and informs the users.
 
 - **Modern Web Features**:
-  - **Progressive Web App (PWA):**: It can be installed as web app on any device.
+  - **Progressive Web App (PWA)**: It can be installed as web app on any device.
   - **Single Page Application (SPA)**: The application provides a seamless user experience with dynamic content updates without page reloads.
   - **Responsive Design**: It is fully responsive, ensuring a seamless user experience across desktops, tablets, and mobile devices.
 
@@ -59,6 +59,7 @@ Below is the ER diagram representing the database schema for BookLit:
 - **Redis**: Used for caching and as a message broker for Celery tasks.
 - **Pandas**: Used for creating CSV exports.
 - **Jinja2 and pdfkit**: Used for generating PDFs from HTML templates.
+- **SQLite**: Lightweight database used for data storage.
 
 ### Frontend (Vue.js):
 - **Vue.js**: Frontend framework for building user interfaces.
@@ -73,7 +74,6 @@ Below is the ER diagram representing the database schema for BookLit:
 - **Tween**: Animates integers for dynamic UI effects in dashboards.
 - **HTML, CSS, and Bootstrap**: Used for structuring and styling the application.
 - **Lottie-web**: Animates the play and pause button of pdf reader.
-- **SQLite**: Lightweight database used for data storage.
 
 ## Prerequisites
 
