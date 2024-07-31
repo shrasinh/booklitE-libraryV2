@@ -146,7 +146,7 @@ http://localhost:5173/
 The `back-end` folder contains all the files and folders necessary for the backend of the BookLit application.
 
 - **`instance` folder**: 
-  - Contains the SQLite database file, `library.sqlite3`.
+  - Contains the SQLite database file, `library.sqlite3`. This will be created if not present when the back-end starts for the first time.
 
 - **`application` folder**: 
   - Houses the Python files such as models, forms, and setup needed by the controllers.
