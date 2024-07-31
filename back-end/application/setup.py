@@ -9,8 +9,10 @@ from flask_security import (
     PasswordUtil,
     UsernameUtil,
 )
+from flask.json.provider import JSONProvider
 from application.models import Users, Roles, db
 import os
+import json
 from datetime import datetime
 from celery import Celery
 from flask_mailman import Mail
@@ -60,37 +62,6 @@ app.config["broker_connection_retry_on_startup"] = True
 app.config["CACHE_TYPE"] = "RedisCache"
 app.config["CACHE_REDIS_HOST"] = "localhost"
 app.config["CACHE_REDIS_PORT"] = 6379
-
-
-# disabling sending of cookie
-class CustomSessionInterface(SecureCookieSessionInterface):
-    def should_set_cookie(self, app: Flask, session: SessionMixin) -> bool:
-        return False
-
-
-app.session_interface = CustomSessionInterface()
-
-
-# adding the headers that allow cross-origin requests and jsonifying the response
-class CustomResponse(Response):
-    default_mimetype = "application/json"
-
-    def __init__(self, response=None, *args, **kwargs):
-        kwargs["headers"] = {
-            "Access-Control-Allow-Origin": "http://localhost:5173",
-            "Access-Control-Allow-Headers": "Authentication-Token,content-type",
-            "Access-Control-Allow-Methods": "*",
-        }
-        return super(CustomResponse, self).__init__(response, *args, **kwargs)
-
-    @classmethod
-    def force_type(cls, rv, environ=None):
-        if isinstance(rv, dict):
-            rv = jsonify(rv)
-        return super(CustomResponse, cls).force_type(rv, environ)
-
-
-app.response_class = CustomResponse
 
 
 # initializing celery
@@ -150,6 +121,59 @@ with app.app_context():
             confirmed_at=datetime.now(),
         )
     db.session.commit()
+
+
+# changing the default implementation of some flask utils
+
+
+## changing the datetime json format
+class JSON_Improved(json.JSONEncoder):
+
+    def default(self, o):
+        if isinstance(o, datetime):
+            return o.strftime("%a, %d %b %Y %H:%M:%S")
+        else:
+            return super(JSON_Improved, self).default(o)
+
+
+class CustomJSONProvider(JSONProvider):
+
+    def dumps(self, obj, **kwargs):
+        return json.dumps(obj, **kwargs, cls=JSON_Improved)
+
+
+app.json = CustomJSONProvider(app)
+
+
+## disabling sending of cookie
+class CustomSessionInterface(SecureCookieSessionInterface):
+    def should_set_cookie(self, app: Flask, session: SessionMixin) -> bool:
+        return False
+
+
+app.session_interface = CustomSessionInterface()
+
+
+## adding the headers that allow cross-origin requests and jsonifying the response
+class CustomResponse(Response):
+    default_mimetype = "application/json"
+
+    def __init__(self, response=None, *args, **kwargs):
+        kwargs["headers"] = {
+            "Access-Control-Allow-Origin": "http://localhost:5173",
+            "Access-Control-Allow-Headers": "Authentication-Token,content-type",
+            "Access-Control-Allow-Methods": "*",
+        }
+        return super(CustomResponse, self).__init__(response, *args, **kwargs)
+
+    @classmethod
+    def force_type(cls, rv, environ=None):
+        if isinstance(rv, dict):
+            rv = jsonify(rv)
+        return super(CustomResponse, cls).force_type(rv, environ)
+
+
+app.response_class = CustomResponse
 
 
 # some functions and variable used all over the app
