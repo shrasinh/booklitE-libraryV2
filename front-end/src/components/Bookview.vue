@@ -174,7 +174,7 @@
         </span>
         <span v-else><a class="pointer-link">View book</a></span>
     </div>
-    <div class="adobe-dc-view" :id="id" style="position:absolute;z-index:2000;"></div>
+    <div class="adobe-dc-view" :id="id" style="position:fixed;z-index:2000;"></div>
     <div class="audio-player-container">
         <button class="play-icon" ref="playIconContainer" title="Listen to text to speech version of the pdf"
             @click="playanimation"></button>
@@ -183,7 +183,7 @@
 
 <style scoped>
     .audio-player-container {
-        position: absolute;
+        position: fixed;
         bottom: 2%;
         left: 2%;
         width: 50%;
