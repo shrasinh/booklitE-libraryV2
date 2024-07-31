@@ -1,6 +1,5 @@
 <script setup>
     import { ref, watch } from 'vue'
-    import { RouterLink } from 'vue-router'
     import Ratinggive from './Ratinggive.vue'
     import Filter from '../../../components/Filter.vue'
 
@@ -61,47 +60,44 @@
                 <div class="accordion-item" v-if="result(non_rate)">
 
                     <div class="accordion-header">
-                        <div class="row align-items-center">
-                            <div class="col">
-                                <div class="accordion-button collapsed row" data-bs-toggle="collapse"
-                                    :data-bs-target="'#collapsenon'+non_rate.book_id">
-                                    <div class="col-lg-2 row">
-                                        <img :src="non_rate.thumbnail" class="img-thumbnail"
-                                            style="max-height:200px;max-width:200px">
-                                    </div>
-                                    <div class="col-lg row">
-                                        <div class="row">
-                                            <div class="col-lg-4 col-auto">Book</div>
-                                            <div class="col-auto">
-                                                <RouterLink :to="'/book/'+non_rate.book_id"
-                                                    @click="event.stopPropagation()">{{non_rate.book_name}}
-                                                </RouterLink>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-lg-4 col-auto">Section</div>
-                                            <div class="col-auto">{{non_rate.section_name}}</div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-lg-4 col-auto">Author</div>
-                                            <div class="col-auto">{{non_rate.author_name}}</div>
-                                        </div>
 
+                        <div class="accordion-button collapsed row" data-bs-toggle="collapse"
+                            :data-bs-target="'#collapsenon'+non_rate.book_id">
+                            <div class="col-lg-2 row">
+                                <img :src="non_rate.thumbnail" class="img-thumbnail"
+                                    style="max-height:200px;max-width:200px">
+                            </div>
+                            <div class="col-lg row">
+                                <div class="row">
+                                    <div class="col-lg-4 col-auto">Book</div>
+                                    <div class="col-auto">
+                                        {{non_rate.book_name}}
                                     </div>
                                 </div>
+                                <div class="row">
+                                    <div class="col-lg-4 col-auto">Section</div>
+                                    <div class="col-auto">{{non_rate.section_name}}</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-4 col-auto">Author</div>
+                                    <div class="col-auto">{{non_rate.author_name}}</div>
+                                </div>
+
                             </div>
+
+                        </div>
+                    </div>
+                    <div :id="'collapsenon'+non_rate.book_id" class="accordion-collapse collapse"
+                        data-bs-parent="#nonratedlist">
+                        <div class="accordion-body">
+                            <Ratinggive :rating="non_rate">
+                            </Ratinggive>
                         </div>
                     </div>
                 </div>
             </div>
-            <div :id="'collapsenon'+non_rate.book_id" class="accordion-collapse collapse"
-                data-bs-parent="#nonratedlist">
-                <div class="accordion-body">
-                    <Ratinggive :rating="non_rate">
-                    </Ratinggive>
-                </div>
-            </div>
         </div>
+
     </div>
 
 </template>
