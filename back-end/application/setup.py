@@ -140,6 +140,9 @@ class CustomJSONProvider(JSONProvider):
 
     def dumps(self, obj, **kwargs):
         return json.dumps(obj, **kwargs, cls=JSON_Improved)
+        
+    def loads(self, s: str | bytes, **kwargs):
+        return json.loads(s, **kwargs)
 
 
 app.json = CustomJSONProvider(app)
