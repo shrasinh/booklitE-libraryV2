@@ -18,7 +18,7 @@ import base64
 from time import sleep
 
 
-@cache.cached(timeout=10, key_prefix="all_sections")
+@cache.cached(timeout=30, key_prefix="all_sections")
 def get_sections():
     return Sections.query.all()
 
@@ -56,7 +56,6 @@ def adminstats():
 
 @app.route("/admin/sections")
 @roles_required("Admin")
-@cache.cached(timeout=60)
 def adminsections():
     sections = []
     for s in get_sections():
