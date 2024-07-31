@@ -38,7 +38,7 @@
         } )
         if ( r.ok )
         {
-            user.value.membership_date = new Date().toUTCString()
+            user.value.membership_date = new Date().toString().split( ' GMT' )[ 0 ]
             user.value.membership = 'Subscribed member'
             useIdentityStore().identity = [ 'User', 'Member' ]
             checksuccess( r )

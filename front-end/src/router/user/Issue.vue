@@ -83,7 +83,7 @@
             {
                 if ( current_issue.value[ i ].issue_id == issue_id )
                 {
-                    current_issue.value[ i ].return_date = new Date().toUTCString()
+                    current_issue.value[ i ].return_date = new Date().toString().split( ' GMT' )[ 0 ]
                     previous_issue.value.push( { ...current_issue.value[ i ] } )
                     current_issue.value.splice( i, 1 )
                     break

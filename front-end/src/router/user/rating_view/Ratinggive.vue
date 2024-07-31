@@ -77,7 +77,7 @@
                 r = await r.json()
                 // changing the parent data
                 original.value.rating_id = r.rating_id
-                original.value.rating_date = new Date().toUTCString()
+                original.value.rating_date = new Date().toString().split( ' GMT' )[ 0 ]
                 original.value.rating = rate.value
                 original.value.feedback = feedback.value
                 useAlertStore().alertpush( [ { msg: 'The rating is successfully given!', type: 'alert-success' } ] )

@@ -30,7 +30,7 @@
         get () { return payment.value.expiry_date ? formatted_date( new Date( payment.value.expiry_date ) ) : next_month_date },
         set ( newdate )
         {
-            payment.value.expiry_date = new Date( newdate ).toUTCString()
+            payment.value.expiry_date = new Date( newdate ).toString().split( ' GMT' )[ 0 ]
         }
     } )
     const editing = ref( false )
@@ -65,7 +65,7 @@
         if ( r.ok )
         {
             user.value.payment = { ...payment.value }
-            !user.value.payment.expiry_date ? user.value.payment.expiry_date = new Date( compute_date.value ).toUTCString() : ''
+            !user.value.payment.expiry_date ? user.value.payment.expiry_date = new Date( compute_date.value ).toString().split( ' GMT' )[ 0 ] : ''
             checksuccess( r )
         }
         else
