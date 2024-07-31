@@ -131,7 +131,7 @@ class JSON_Improved(json.JSONEncoder):
 
     def default(self, o):
         if isinstance(o, datetime):
-            return o.strftime("%a, %d %b %Y %H:%M:%S")
+            return o.strftime("%a %d %b %Y %H:%M:%S")
         else:
             return super(JSON_Improved, self).default(o)
 
