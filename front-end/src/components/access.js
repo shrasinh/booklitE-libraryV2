@@ -10,7 +10,7 @@ const register_schema = object().shape( {
     email: string().trim().required().email().strict(),
     username: string().trim().matches( /^[\p{L}\p{N}]+$/u, "Must be unicode letters and numbers only." ).required().min( 4 ).max( 32 ).strict(),
     password: string().matches( /^(?!(^\s+$))/, 'Blank-spaces only password is not allowed.' ).required().min( 8 ).strict(),
-    confirm_password: string().oneOf( [ ref( 'password' ), null ], 'Password and confirmation password donot match' ).strict(),
+    confirm_password: string().oneOf( [ ref( 'password' ) ], 'Password and confirmation password donot match' ).required().strict(),
 } )
 
 const register = {

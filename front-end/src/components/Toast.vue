@@ -47,7 +47,7 @@
 
         </div>
     </div>
-    <div class="toast-container bottom-0 end-0">
+    <div class="toast-container position-fixed bottom-0 end-0">
         <div id="export-notification" class="toast">
             <div class="toast-header">
                 <img src="https://img.icons8.com/color/92/story-book.png" class="rounded me-2">
