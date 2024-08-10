@@ -77,6 +77,7 @@ def adminsectioncreate():
     form = SectionForm()
     if form.validate_on_submit():
         row = Sections(
+            date_created=datetime.now(),
             name=form.name.data,
             description=form.description.data,
         )
