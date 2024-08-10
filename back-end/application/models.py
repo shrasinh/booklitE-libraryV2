@@ -59,7 +59,7 @@ class Users(db.Model, UserMixin):
 
 class Sections(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    date_created = db.Column(db.DateTime, default=datetime.now(), nullable=False)
+    date_created = db.Column(db.DateTime, nullable=False)
     name = db.Column(db.String, nullable=False)
     description = db.Column(db.Text, nullable=False)
     book = db.relationship(
@@ -118,7 +118,7 @@ class PaymentDetails(db.Model):
 
 class IssuedBook(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    issue_date = db.Column(db.DateTime, default=datetime.now(), nullable=False)
+    issue_date = db.Column(db.DateTime, nullable=False)
     return_date = db.Column(db.DateTime, nullable=False)
     return_status = db.Column(db.Boolean, default=0, nullable=False)
     book_id = db.Column(db.Integer, db.ForeignKey("books.id"), nullable=False)
@@ -133,7 +133,7 @@ class IssuedBook(db.Model):
 
 class PurchasedBook(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    purchase_date = db.Column(db.DateTime, default=datetime.now(), nullable=False)
+    purchase_date = db.Column(db.DateTime, nullable=False)
     price = db.Column(
         db.Float(precision=2, asdecimal=True, decimal_return_scale=2), nullable=False
     )
@@ -152,7 +152,7 @@ class Ratings(db.Model):
     book_id = db.Column(db.Integer, db.ForeignKey("books.id"), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     rating = db.Column(db.Integer, nullable=False)
-    rating_date = db.Column(db.DateTime, default=datetime.now(), nullable=False)
+    rating_date = db.Column(db.DateTime, nullable=False)
     feedback = db.Column(db.Text)
     __table_args__ = (db.UniqueConstraint("user_id", "book_id"),)
     user = db.relationship(
