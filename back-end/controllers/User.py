@@ -166,6 +166,7 @@ def bookissue(id):
             if current_user.has_role("Member"):
                 if len(issuedbook) <= 10:
                     row = IssuedBook(
+                        issue_date=datetime.now(),
                         return_date=datetime.now() + timedelta(days=14),
                         book_id=bookdetails.id,
                         user_id=current_user.id,
@@ -174,6 +175,7 @@ def bookissue(id):
             else:
                 if len(issuedbook) <= 5:
                     row = IssuedBook(
+                        issue_date=datetime.now(),
                         return_date=datetime.now() + timedelta(days=7),
                         book_id=bookdetails.id,
                         user_id=current_user.id,
@@ -220,6 +222,7 @@ def bookpurchase(id):
             abort(400, "Your card has expired. Update your payment details.")
         else:
             row = PurchasedBook(
+                purchase_date=datetime.now(),
                 price=bookdetails.price,
                 book_id=bookdetails.id,
                 user_id=current_user.id,
@@ -257,8 +260,7 @@ def issue():
             )
         else:
             previous_issue.append(
-                {   
-                    "issue_id": i.id,
+                {
                     "book_id": i.book_id,
                     "book_name": i.book.name,
                     "section_name": i.book.section.name,
@@ -428,6 +430,7 @@ def ratingcreate(book_id):
     form = RatingForm()
     if form.validate_on_submit():
         row = Ratings(
+            rating_date=datetime.now(),
             user_id=current_user.id,
             book_id=book_id,
             rating=form.rating.data,
