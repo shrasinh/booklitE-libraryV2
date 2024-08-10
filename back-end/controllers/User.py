@@ -257,7 +257,8 @@ def issue():
             )
         else:
             previous_issue.append(
-                {
+                {   
+                    "issue_id": i.id,
                     "book_id": i.book_id,
                     "book_name": i.book.name,
                     "section_name": i.book.section.name,
