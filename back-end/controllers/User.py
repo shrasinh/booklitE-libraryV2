@@ -164,7 +164,7 @@ def bookissue(id):
             bookdetails.noofcopies -= 1
             insert = False
             if current_user.has_role("Member"):
-                if len(issuedbook) <= 10:
+                if len(issuedbook) < 10:
                     row = IssuedBook(
                         issue_date=datetime.now(),
                         return_date=datetime.now() + timedelta(days=14),
@@ -173,7 +173,7 @@ def bookissue(id):
                     )
                     insert = True
             else:
-                if len(issuedbook) <= 5:
+                if len(issuedbook) < 5:
                     row = IssuedBook(
                         issue_date=datetime.now(),
                         return_date=datetime.now() + timedelta(days=7),
