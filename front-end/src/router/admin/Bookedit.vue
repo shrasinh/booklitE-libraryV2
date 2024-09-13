@@ -7,8 +7,7 @@
     import { object, string, number } from "yup"
 
     const props = defineProps( [ 'book' ] )
-    const original = ref( props.book )
-    const book = ref( { ...original.value } )
+    const book = ref( { ...props.book } )
     const editing = ref( false )
 
     const section_name = computed( () =>
@@ -83,13 +82,14 @@
                 }
                 break
             }
-            original.value = { ...book.value }//changing the parent data
+
+            Object.assign( props.book, book.value ); //changing the parent data
 
             checksuccess( r )
         }
         else
         {
-            book.value = { ...original.value }// resetting the child data to the original data
+            Object.assign( book.value, props.book );// resetting the child data to the original data
             checkerror( r )
         }
         // stopping the loading screen

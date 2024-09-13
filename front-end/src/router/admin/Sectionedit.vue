@@ -6,9 +6,11 @@
     import { object, string } from "yup"
 
     const props = defineProps( [ 'section' ] )
-    const original = ref( props.section )
-    const section = ref( { ...original.value } )
+    const section = ref( { ...props.section } )
     const editing = ref( false )
+    // if we do ref(props.section) we get a local copy of the initial value of props.section
+    // however since props.section is a mutable object any changes to its individual property will still be reflected in the parent component
+    // so to disassociate it from the parent component, we need to destruct the object
 
     const section_schema = object().shape( {
         section_name: string().required().strict(),
@@ -43,13 +45,17 @@
                 }
                 break
             }
-            original.value = { ...section.value }// changing the parent data
+
+            Object.assign( props.section, section.value );// changing the parent data, the reference of props.section remains the same
+
             checksuccess( r )
         }
         else
         {
             checkerror( r )
-            section.value = { ...original.value } // resetting the child data to the original data
+
+            Object.assign( section.value, props.section );// resetting the child data to the original data
+
         }
         // stopping the loading screen
         useLoadingStore().loading = false
