@@ -198,3 +198,6 @@ The `front-end` folder contains all the files and folders necessary for the fron
 
 - **Mail Configuration**:
   - Mail is sent using SSL. This setting can be modified in the `back-end/application/setup.py` file.
+
+- **Version 1 of the project**:
+  - Version 1 of the project can be found [here](https://github.com/shrasinh/booklitE-library). Version 1 focuses more on the backend and does Server-Side Rendering with Jinja template.
